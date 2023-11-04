@@ -1,25 +1,24 @@
 # FILEPATH: c:\Development\University\AI\CMakeLists.txt
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.15)
+set(CMAKE_CXX_STANDARD 20)
 
 project(AI2Worksheets)
 
-file(GLOB_RECURSE SOURCES "main.cpp")
+file(GLOB_RECURSE SOURCES "Dev/main.cpp")
 
-file(GLOB_RECURSE WORKSHEETS 
-        "/Worksheet 1/Inc/*.h" "/Worksheet 1/*.cpp"
-        "/Worksheet 2/Inc/*.h" "/Worksheet 2/*.cpp"
-        "/Worksheet 3/Inc/*.h" "/Worksheet 3/*.cpp"
-)
+file(GLOB_RECURSE Assignment "Dev/Assignment/*.cpp" "Dev/Assignment/*.h")
 
 
 
-add_executable(AI2Worksheets ${SOURCES} ${WORKSHEETS})
+
+
+
+add_executable(AI2Worksheets ${SOURCES} ${Assignment})
 
 
 
 target_include_directories(AI2Worksheets PUBLIC
-    "/Worksheet 1/Inc/"
-    "/Worksheet 2/Inc/"
-    "/Worksheet 3/Inc/"
+    "Dev/Assignment/"
+
 )
