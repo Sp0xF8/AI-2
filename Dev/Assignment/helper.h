@@ -13,5 +13,6 @@ namespace Helper {
 
     void printPopulation(void* population[]);
     float getPopulationFitness(void* population[]);
+    float getPopulationHeight(void* population[]);
 
 }

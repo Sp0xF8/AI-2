@@ -18,7 +18,11 @@ Individual::Individual() {
 
 
 Individual::~Individual() {
-    //destructor
+    #ifdef _DEBUG_INDIVIDUAL
+        printf("Individual destructor\n");
+    #endif
+
+    // delete this;
 }
 
 

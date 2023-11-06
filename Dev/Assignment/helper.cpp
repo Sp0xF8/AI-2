@@ -92,3 +92,34 @@ float Helper::getPopulationFitness(void* population[]) {
 
     return fitness;
 }
+
+float Helper::getPopulationHeight(void* population[]) {
+    //calculate fitness of population
+    float height;
+    Individual *individual = (Individual*)population[0];
+
+    height = individual->getFitness();
+
+    #ifdef FIND_BEST
+
+        for (int i = 1; i < POPULATION_SIZE; i++) {
+            Individual *individual = (Individual*)population[i];
+            if (individual->getFitness() > height) {
+                height = individual->getFitness();
+            }
+            
+        }
+
+    #else
+    
+            for (int i = 1; i < POPULATION_SIZE; i++) {
+                Individual *individual = (Individual*)population[i];
+                if (individual->getFitness() < height) {
+                    height = individual->getFitness();
+                }
+                
+            }
+    #endif
+
+    return height;
+}
