@@ -14,6 +14,23 @@ void* mutations[POPULATION_SIZE];
 
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//                                 SIMPLE FUNCTION TO GENERATE A POPULATION
+//      TAKES ARGUMENTS:
+//          #NONE - USES GLOBAL VARIABLES EXISTING INSIDE THIS CPP FILE
+//
+//
+//      CYCLES THROUGH EACH INDIVIDUAL IN THE POPULATION
+//          GENERATES GENES FOR EACH INDIVIDUAL
+//          CALCULATES THE FITNESS OF EACH INDIVIDUAL
+//          ADDS THE INDIVIDUAL TO THE POPULATION
+//
+//      RETURNS:
+//          true : IF THE POPULATION WAS GENERATED
+//          false : IF THE POPULATION WAS NOT GENERATED
+//
+///////////////////
 
 bool GeneratePopulatin(){
 
@@ -29,6 +46,23 @@ bool GeneratePopulatin(){
 
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//                                          GLADIATOR SELECTION FUNCTION
+//      TAKES ARGUMENTS:
+//          #NONE - USES GLOBAL VARIABLES EXISTING INSIDE THIS CPP FILE
+//
+//
+//      CYCLES THROUGH EACH INDIVIDUAL IN THE POPULATION
+//          GETS x AMOUNT OF RANDOM INDIVIDUALS FROM THE POPULATION
+//          FINDS THE BEST INDIVIDUAL FROM THE RANDOM INDIVIDUALS
+//          CLONES THE BEST INDIVIDUAL TO THE GLADIATORS POPULATION
+//
+//      RETURNS:
+//          true : IF THE POPULATION WAS GLADIATOR SELECTED
+//          false : IF THE POPULATION WAS NOT GLADIATOR SELECTED
+//
+///////////////////
 
 bool GladiatorSelection(){
 
@@ -75,6 +109,26 @@ bool GladiatorSelection(){
     return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//                                          Crosspoint Function
+//      TAKES ARGUMENTS:
+//          #NONE - USES GLOBAL VARIABLES EXISTING INSIDE THIS CPP FILE
+//
+//
+//      CYCLES THROUGH EACH INDIVIDUAL IN THE POPULATION
+//          GETS 2  RANDOM INDIVIDUALS FROM THE POPULATION
+//          GETS A RANDOM CROSSPOINT
+//              SETS THE GENES OF THE NEW INDIVIDUALS TO THE GENES OF THE RANDOM INDIVIDUALS
+//              SWAPS THE GENES OF THE NEW INDIVIDUALS AT THE CROSSPOINT
+//              CALCULATES THE FITNESS OF THE NEW INDIVIDUALS
+//              ADDS THE NEW INDIVIDUALS TO THE CROSSPOINT POPULATION
+//
+//      RETURNS:
+//          true : IF THE POPULATION WAS CROSSPOINTED
+//          false : IF THE POPULATION WAS NOT CROSSPOINTED
+//
+///////////////////
 
 bool Crosspoint(){
     
@@ -120,6 +174,25 @@ bool Crosspoint(){
     
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//                                          Mutation Function
+//      TAKES ARGUMENTS:
+//          #NONE - USES GLOBAL VARIABLES EXISTING INSIDE THIS CPP FILE
+//  
+//
+//      CYCLES THROUGH EACH INDIVIDUAL IN THE POPULATION 
+//          AND CYCLES THROUGH EACH GENE IN THE INDIVIDUAL
+//          GENERATES A RANDOM FLOAT BETWEEN 0 AND 1
+//          IF THE RANDOM FLOAT IS LESS THAN THE MUTATION RATE
+//              THEN GENERATE A RANDOM FLOAT BETWEEN 0 AND THE MUTATION HEIGHT
+//              AND ADD IT TO THE GENE
+//
+//      RETURNS:
+//          true : IF THE POPULATION WAS MUTATED
+//          false : IF THE POPULATION WAS NOT MUTATED
+//
+///////////////////
 
 bool Mutation(){
 
@@ -152,14 +225,48 @@ bool Mutation(){
 
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//                                 SIMPLE FUNCTION TO CLEAR A POPULATION
+//      TAKES ARGUMENTS:
+//          population : THE POPULATION TO CLEAR
+//
+//
+//      CYCLES THROUGH EACH INDIVIDUAL IN THE POPULATION AND DELETES IT
+//          THEN SETS THE POINTER TO NULL
+//
+//      RETURNS:
+//          true : IF THE POPULATION WAS CLEARED
+//          false : IF THE POPULATION WAS NOT CLEARED
+///////////////////
+
 bool ClearPopulation(void* population[]){
 
     for (int i = 0; i < POPULATION_SIZE; i++) {
         delete (Individual*)population[i];
+        population[i] = NULL;
     }
 
     return true;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//                                 SIMPLE FUNCTION TO COPY A POPULATION TO ANOTHER POPULATION
+//      TAKES ARGUMENTS:
+//          from : THE POPULATION TO COPY FROM
+//          to : THE POPULATION TO COPY TO
+//
+//
+//      COPIES THE POPULATION FROM ONE POPULATION TO ANOTHER BY CYCLING THROUGH EACH INDIVIDUAL
+//          AND COPYING THE GENES AND FITNESS OF EACH INDIVIDUAL TO A NEW INSTANCE OF AN INDIVIDUAL
+//          AND ADDING A POINTER TO IT TO THE NEW POPULATION ARRAY
+//
+//      RETURNS:
+//          true : IF THE POPULATION WAS COPIED
+//          false : IF THE POPULATION WAS NOT COPIED
+//
+///////////////////
 
 bool CopyPopulation(void* from[], void* to[]){
 
@@ -175,6 +282,22 @@ bool CopyPopulation(void* from[], void* to[]){
     return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//                                    REPLACE POPULATION WITH BEST POPULATION
+//      TAKES ARGUMENTS:
+//          best_population : THE POPULATION TO REPLACE THE CURRENT POPULATION WITH
+//
+//
+//      DELETES THE CURRENT POPULATION AND REPLACES IT WITH THE BEST POPULATION
+//          IF THE BEST POPULATION IS THE SAME AS THE CURRENT POPULATION, IT WILL DELETE OTHER POPULATIONS
+//          OTHERWISE, IT WILL DELETE THE CURRENT POPULATION AND REPLACE IT WITH THE BEST POPULATION
+//      
+//      RETURNS: 
+//          true : IF THE POPULATION WAS REPLACED
+//          false : IF THE POPULATION WAS NOT REPLACED
+//
+///////////////////
 
 bool ReplacePopulation(void* best_population[]){
 
@@ -182,29 +305,42 @@ bool ReplacePopulation(void* best_population[]){
 
     if(best_population == population){
         printf("Replacing population with itself\n");
-        ClearPopulation(gladiators);
-        ClearPopulation(crosspoints);
-        ClearPopulation(mutations);
-    }
 
-    CopyPopulation(best_population, temp_population);
+    } else {
 
-    ClearPopulation(population);
+        CopyPopulation(best_population, temp_population);
 
-    CopyPopulation(temp_population, population);
+        ClearPopulation(population);
+
+        CopyPopulation(temp_population, population);
 
     // ClearPopulation(temp_population);
+    }
+
     ClearPopulation(gladiators);
     ClearPopulation(crosspoints);
     ClearPopulation(mutations);
 
-
-    
-
-
     return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//                                 THIS IS THE PART OF THE PROGRAM WHICH IS CALLED FROM MAIN
+//      TAKES ARGUMENTS:
+//          #NONE
+//
+//
+//      THIS FUNCTION RUNS THE ENTIRE PROGRAM. IT GENERATES THE INITIAL POPULATION, THEN RUNS THE GENERATIONS LOOP
+//         
+//                                                   THIS FUNCTION IS CALLED EXTERNALLY, INSTEAD OF MAIN TO ALLOW FOR
+//                                                   EASY TESTING OF THE PROGRAM AND BETTER READABILITY
+//
+//      RETURNS:
+//          true : IF THE PROGRAM WAS RUN SUCCESSFULLY
+//          false : IF THE PROGRAM WAS NOT RUN SUCCESSFULLY
+//
+///////////////////
 
 bool Assignment::runAssignment(){
 
@@ -222,7 +358,6 @@ bool Assignment::runAssignment(){
         srand(seed);
     }
 
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     //                                          GENERATE INITIAL POPULATION
@@ -235,12 +370,10 @@ bool Assignment::runAssignment(){
         return false;
     }
 
-
     #ifdef _DEBUG_POPULATION
         printf("\n\nInitial population\n\n");
         Helper::printPopulation(population);
     #endif
-
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -255,7 +388,6 @@ bool Assignment::runAssignment(){
         #ifdef _DEBUG_GENERATION
             printf("\n\nGeneration %d\n", g);
         #endif
-
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -272,7 +404,6 @@ bool Assignment::runAssignment(){
             printf("\n\n Gladiators\n\n");
             Helper::printPopulation(gladiators);
         #endif
-
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -306,8 +437,13 @@ bool Assignment::runAssignment(){
             Helper::printPopulation(mutations);
         #endif
 
-
-
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //
+        //                              CALCULATE FITNESS FOR EACH POPULATION AND STORE FOR GRAPHING
+        //                                              IF GRAPHING IS ENABLED
+        //                              OTHERWISE, STORE FITNESS FOR EACH POPULATION TEMPORARILY
+        //
+        ///////////////////
 
         #ifdef _PLOT_GRAPHS
 
@@ -343,6 +479,12 @@ bool Assignment::runAssignment(){
             fitnesses[3] = Helper::getPopulationFitness(mutations);
 
         #endif
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //
+        //                                      PRINT CURRENT GENERATION'S POPULATIONS' FITNESSES
+        //
+        ///////////////////
 
         #ifdef _DEBUG_GENERATION
 
@@ -473,9 +615,7 @@ bool Assignment::runAssignment(){
         #endif
 
         #ifdef ELITEISM 
-
             #ifdef _PLOT_GRAPHS
-
                 #ifdef FIND_BEST 
                     if (Helper::generations[g].population.best > Helper::generations[g].mutation.best) {
                         ReplacePopulation(population);
@@ -484,7 +624,7 @@ bool Assignment::runAssignment(){
                     }
                 #else
                     if (Helper::generations[g].population.worst < Helper::generations[g].mutation.worst) {
-                        // ReplacePopulation(population);
+                        ReplacePopulation(population);
                     }else{
                         ReplacePopulation(mutations);
                     }
@@ -503,9 +643,7 @@ bool Assignment::runAssignment(){
                         ReplacePopulation(mutations);
                     }
                 #endif
-
             #endif
-
         #endif
 
         #ifdef SIMPLE_PASSDOWN
@@ -545,9 +683,7 @@ bool Assignment::runAssignment(){
             printf("Average fitness: %f\n", Helper::average_fitnesses[g]);
         
         #endif
-
     }
-
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -556,7 +692,6 @@ bool Assignment::runAssignment(){
     ///////////////////
 
     #ifdef _DEBUG_FITNESS
-
         #ifdef FIND_BEST
             printf("\n\nBest fitnesses:\n");
             for (int i = 0; i < NUMBER_OF_GENERATIONS; i++) {
@@ -568,7 +703,6 @@ bool Assignment::runAssignment(){
                 printf("%d:  W:[%f]  A: [%f]\n", i, Helper::worst_fitnesses[i], Helper::average_fitnesses[i]);
             }
         #endif
-
     #endif
 
     return true;
