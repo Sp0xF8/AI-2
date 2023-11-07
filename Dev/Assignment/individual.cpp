@@ -9,16 +9,13 @@ Individual::Individual() {
     #endif
 }
 
-// Individual::Individual(float genes[]) {
-//     //set genes
-//     setGenes(genes);
-//     //calculate fitness
-//     Helper::calculateFitness(this);
-// }
-
 
 Individual::~Individual() {
-    //destructor
+    #ifdef _DEBUG_INDIVIDUAL
+        printf("Individual destructor\n");
+    #endif
+
+    // delete this;
 }
 
 

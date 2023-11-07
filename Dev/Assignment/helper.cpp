@@ -3,6 +3,19 @@
 
 #include <iostream>
 
+namespace Helper {
+    
+        #ifdef FIND_BEST
+            float best_fitnesses[NUMBER_OF_GENERATIONS];
+        #else
+            float worst_fitnesses[NUMBER_OF_GENERATIONS];
+        #endif
+    
+        float average_fitnesses[NUMBER_OF_GENERATIONS];
+
+        Generation generations[NUMBER_OF_GENERATIONS];
+}
+
 
 void Helper::generateGenes(Individual *individual) {
 
@@ -36,48 +49,39 @@ void Helper::printGenes(Individual *individual) {
 
     float *genes = individual->getGenes();
 
-    #ifdef _DEBUG_GENES
+    std::cout << "Genes: ";
 
-        std::cout << "Genes: ";
-
-        for (int i = 0; i < NUMBER_OF_GENES; i++) {
-            std::cout << genes[i] << " ";
-        }
-        std::cout << ";" << std::endl;
-
-    #endif
+    for (int i = 0; i < NUMBER_OF_GENES; i++) {
+        std::cout << genes[i] << " ";
+    }
+    std::cout << ";" << std::endl;
 }
 
 void Helper::printFitness(Individual *individual) {
     //print fitness
     float fitness = individual->getFitness();
+    std::cout << "Fitness: " << fitness << std::endl;
 
-    #ifdef _DEBUG_FITNESS
-
-        std::cout << "Fitness: " << fitness << std::endl;
-    #endif
 }
 
 void Helper::printIndividual(Individual *individual) {
-    #ifdef _DEBUG_INDIVIDUAL
-        std::cout << "\n\nIndividual: " << std::endl;
-        //print genes and fitness
-        printGenes(individual);
-        printFitness(individual);
-    #endif
+
+    std::cout << "\n\nIndividual: " << std::endl;
+    //print genes and fitness
+    printGenes(individual);
+    printFitness(individual);
+
 }
 
 
 void Helper::printPopulation(void* population[]) {
 
-    #ifdef _DEBUG_POPULATION
-        std::cout << "Population: " << std::endl;
-        //print population
-        for (int i = 0; i < POPULATION_SIZE; i++) {
-            Individual *individual = (Individual*)population[i];
-            printIndividual(individual);
-        }
-    #endif
+    std::cout << "Population: " << std::endl;
+    //print population
+    for (int i = 0; i < POPULATION_SIZE; i++) {
+        Individual *individual = (Individual*)population[i];
+        printIndividual(individual);
+    }
 }
 
 
@@ -91,4 +95,35 @@ float Helper::getPopulationFitness(void* population[]) {
     }
 
     return fitness;
+}
+
+float Helper::getPopulationHeight(void* population[]) {
+    //calculate fitness of population
+    float height;
+    Individual *individual = (Individual*)population[0];
+
+    height = individual->getFitness();
+
+    #ifdef FIND_BEST
+
+        for (int i = 1; i < POPULATION_SIZE; i++) {
+            Individual *individual = (Individual*)population[i];
+            if (individual->getFitness() > height) {
+                height = individual->getFitness();
+            }
+            
+        }
+
+    #else
+    
+            for (int i = 1; i < POPULATION_SIZE; i++) {
+                Individual *individual = (Individual*)population[i];
+                if (individual->getFitness() < height) {
+                    height = individual->getFitness();
+                }
+                
+            }
+    #endif
+
+    return height;
 }
