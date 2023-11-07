@@ -12,13 +12,7 @@ void* gladiators[POPULATION_SIZE];
 void* crosspoints[POPULATION_SIZE];
 void* mutations[POPULATION_SIZE];
 
-#ifdef FIND_BEST
-    float best_fitnesses[NUMBER_OF_GENERATIONS];
-#else
-    float worst_fitnesses[NUMBER_OF_GENERATIONS];
-#endif
 
-float average_fitnesses[NUMBER_OF_GENERATIONS];
 
 
 bool GeneratePopulatin(){
@@ -46,7 +40,6 @@ bool GladiatorSelection(){
         for (int j = 1; j < TOURNAMENT_SIZE; j++) {
             int random_index = rand() % POPULATION_SIZE;
             selection[j] = *(Individual*)population[random_index];
-            // Helper::printIndividual(&selection[j]);
         }
 
 
@@ -136,10 +129,13 @@ bool Mutation(){
         for (int j = 0; j < NUMBER_OF_GENES; j++) {
             float random = (float)rand() / RAND_MAX;
             if(random < MUTATION_RATE){
-                printf("Mutation!\n");
                 
                 float alteration = (float)rand() / RAND_MAX * MUTATION_HEIGHT;
-                printf("Gene: %f + %f\n", genes[j], alteration);
+
+                #ifdef _DEBUG_MUTATION
+                    printf("Mutation!\n");
+                    printf("Gene: %f + %f\n", genes[j], alteration);
+                #endif
                 genes[j] += alteration;
             }
         }
@@ -182,9 +178,6 @@ bool CopyPopulation(void* from[], void* to[]){
 
 bool ReplacePopulation(void* best_population[]){
 
-    printf("Replacing population\n");
-
-
     void* temp_population[POPULATION_SIZE];
 
     if(best_population == population){
@@ -194,25 +187,15 @@ bool ReplacePopulation(void* best_population[]){
         ClearPopulation(mutations);
     }
 
-    printf("Copying population\n");
-
     CopyPopulation(best_population, temp_population);
-
-    printf("Clearing population\n");
 
     ClearPopulation(population);
 
-    printf("Copying temp population\n");
-
     CopyPopulation(temp_population, population);
-
-    printf("Clearing temp population\n");
 
     // ClearPopulation(temp_population);
     ClearPopulation(gladiators);
     ClearPopulation(crosspoints);
-
-    printf("Clearing mutations\n");
     ClearPopulation(mutations);
 
 
@@ -253,8 +236,10 @@ bool Assignment::runAssignment(){
     }
 
 
-
-    Helper::printPopulation(population);
+    #ifdef _DEBUG_POPULATION
+        printf("\n\nInitial population\n\n");
+        Helper::printPopulation(population);
+    #endif
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -267,7 +252,9 @@ bool Assignment::runAssignment(){
     for (int g = 0; g < NUMBER_OF_GENERATIONS; g++) {
         /* code */
 
-        printf("\n\nGeneration %d\n", g);
+        #ifdef _DEBUG_GENERATION
+            printf("\n\nGeneration %d\n", g);
+        #endif
 
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -276,15 +263,15 @@ bool Assignment::runAssignment(){
         //
         ///////////////////
 
-        printf("\n\n Gladiators\n\n");
-
         if(!GladiatorSelection()){
             printf("Error selecting gladiators\n");
             return false;
         }   
 
-        // printf("\n\n Gladiators\n\n");
-        // Helper::printPopulation(gladiators);
+        #ifdef _DEBUG_GLADIATOR
+            printf("\n\n Gladiators\n\n");
+            Helper::printPopulation(gladiators);
+        #endif
 
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -293,16 +280,15 @@ bool Assignment::runAssignment(){
         //
         ///////////////////
 
-        printf("\n\n Crosspoints\n\n");
-
         if(!Crosspoint()){
             printf("Error crosspointing\n");
             return false;
         }
 
-        // printf("\n\n Crosspoints\n\n");
-        // Helper::printPopulation(crosspoints);
-
+        #ifdef _DEBUG_CROSSPOINT
+            printf("\n\n Crosspoints\n\n");
+            Helper::printPopulation(crosspoints);
+        #endif
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -310,17 +296,63 @@ bool Assignment::runAssignment(){
         //
         ///////////////////
 
-        printf("\n\n Mutations\n\n");
-
         if(!Mutation()){
             printf("Error mutating\n");
             return false;
         }
 
-        // printf("\n\n Mutations\n\n");
-        // Helper::printPopulation(mutations);
+        #ifdef _DEBUG_MUTATION
+            printf("\n\n Mutations\n\n");
+            Helper::printPopulation(mutations);
+        #endif
 
 
+
+
+        #ifdef _PLOT_GRAPHS
+
+            #ifdef FIND_BEST 
+                Helper::generations[g].population.best = Helper::getPopulationHeight(population);
+                Helper::generations[g].gladiator.best = Helper::getPopulationHeight(gladiators);
+                Helper::generations[g].crosspoint.best = Helper::getPopulationHeight(crosspoints);
+                Helper::generations[g].mutation.best = Helper::getPopulationHeight(mutations);
+            #else
+                Helper::generations[g].population.worst = Helper::getPopulationHeight(population);
+                Helper::generations[g].gladiator.worst = Helper::getPopulationHeight(gladiators);
+                Helper::generations[g].crosspoint.worst = Helper::getPopulationHeight(crosspoints);
+                Helper::generations[g].mutation.worst = Helper::getPopulationHeight(mutations);
+            #endif
+
+            Helper::generations[g].population.total = Helper::getPopulationFitness(population);
+            Helper::generations[g].population.average = Helper::generations[g].population.total / POPULATION_SIZE;
+
+            Helper::generations[g].gladiator.total = Helper::getPopulationFitness(gladiators);
+            Helper::generations[g].gladiator.average = Helper::generations[g].gladiator.total / POPULATION_SIZE;
+
+            Helper::generations[g].crosspoint.total = Helper::getPopulationFitness(crosspoints);
+            Helper::generations[g].crosspoint.average = Helper::generations[g].crosspoint.total / POPULATION_SIZE;
+
+            Helper::generations[g].mutation.total = Helper::getPopulationFitness(mutations);
+            Helper::generations[g].mutation.average = Helper::generations[g].mutation.total / POPULATION_SIZE;
+
+        #else 
+
+            fitnesses[0] = Helper::getPopulationFitness(population);
+            fitnesses[1] = Helper::getPopulationFitness(gladiators);
+            fitnesses[2] = Helper::getPopulationFitness(crosspoints);
+            fitnesses[3] = Helper::getPopulationFitness(mutations);
+
+        #endif
+
+        #ifdef _DEBUG_GENERATION
+
+            printf("\n\nFitnesses:\n");
+            printf("Population: %f\n", fitnesses[0]);
+            printf("Gladiators: %f\n", fitnesses[1]);
+            printf("Crosspoint: %f\n", fitnesses[2]);
+            printf("Mutations: %f\n", fitnesses[3]);
+
+        #endif
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -328,91 +360,191 @@ bool Assignment::runAssignment(){
         //
         ///////////////////
 
-        fitnesses[0] = Helper::getPopulationFitness(population);
-        fitnesses[1] = Helper::getPopulationFitness(gladiators);
-        fitnesses[2] = Helper::getPopulationFitness(crosspoints);
-        fitnesses[3] = Helper::getPopulationFitness(mutations);
+        #ifdef HEAVY_ELITEISM
+            #ifdef _PLOT_GRAPHS
 
+                #ifdef FIND_BEST
 
-        printf("\n\nFitnesses:\n");
-        printf("Population: %f\n", fitnesses[0]);
-        printf("Gladiators: %f\n", fitnesses[1]);
-        printf("Crosspoint: %f\n", fitnesses[2]);
-        printf("Mutations: %f\n", fitnesses[3]);
+                    if (Helper::generations[g].population.best > Helper::generations[g].gladiator.best) {
+                        if(Helper::generations[g].population.best > Helper::generations[g].crosspoint.best)
+                            if(Helper::generations[g].population.best > Helper::generations[g].mutation.best)
+                                ReplacePopulation(population);
+                            else
+                                ReplacePopulation(mutations);
+                        else
+                            if(Helper::generations[g].crosspoint.best > Helper::generations[g].mutation.best)
+                                ReplacePopulation(crosspoints);
+                            else
+                                ReplacePopulation(mutations);
+                    }else{
+                        if(Helper::generations[g].gladiator.best > Helper::generations[g].crosspoint.best)
+                            if(Helper::generations[g].gladiator.best > Helper::generations[g].mutation.best)
+                                ReplacePopulation(gladiators);
+                            else
+                                ReplacePopulation(mutations);
+                        else
+                            if(Helper::generations[g].crosspoint.best > Helper::generations[g].mutation.best)
+                                ReplacePopulation(crosspoints);
+                            else
+                                ReplacePopulation(mutations);
+                    }
+                #else
 
+                    if (Helper::generations[g].population.worst < Helper::generations[g].gladiator.worst) {
+                        if(Helper::generations[g].population.worst < Helper::generations[g].crosspoint.worst)
+                            if(Helper::generations[g].population.worst < Helper::generations[g].mutation.worst)
+                                ReplacePopulation(population);
+                            else
+                                ReplacePopulation(mutations);
+                        else
+                            if(Helper::generations[g].crosspoint.worst < Helper::generations[g].mutation.worst)
+                                ReplacePopulation(crosspoints);
+                            else
+                                ReplacePopulation(mutations);
+                    }else{
+                        if(Helper::generations[g].gladiator.worst < Helper::generations[g].crosspoint.worst)
+                            if(Helper::generations[g].gladiator.worst < Helper::generations[g].mutation.worst)
+                                ReplacePopulation(gladiators);
+                            else
+                                ReplacePopulation(mutations);
+                        else
+                            if(Helper::generations[g].crosspoint.worst < Helper::generations[g].mutation.worst)
+                                ReplacePopulation(crosspoints);
+                            else
+                                ReplacePopulation(mutations);
+                    }
+                #endif
 
-        #ifdef FIND_BEST
+            #else
+            
+                #ifdef FIND_BEST
 
-            if (fitnesses[0] > fitnesses[1]) {
-                if(fitnesses[0] > fitnesses[2])
-                    if(fitnesses[0] > fitnesses[3])
+                    if(fitnesses[0] > fitnesses[1]){
+                        if(fitnesses[0] > fitnesses[2])
+                            if(fitnesses[0] > fitnesses[3])
+                                ReplacePopulation(population);
+                            else
+                                ReplacePopulation(mutations);
+                        else
+                            if(fitnesses[2] > fitnesses[3])
+                                ReplacePopulation(crosspoints);
+                            else
+                                ReplacePopulation(mutations);
+                    } else {
+                        if(fitnesses[1] > fitnesses[2])
+                            if(fitnesses[1] > fitnesses[3])
+                                ReplacePopulation(gladiators);
+                            else
+                                ReplacePopulation(mutations);
+                        else
+                            if(fitnesses[2] > fitnesses[3])
+                                ReplacePopulation(crosspoints);
+                            else
+                                ReplacePopulation(mutations);
+                    }
+
+                #else
+
+                    if(fitnesses[0] < fitnesses[1]){
+                        if(fitnesses[0] < fitnesses[2])
+                            if(fitnesses[0] < fitnesses[3])
+                                ReplacePopulation(population);
+                            else
+                                ReplacePopulation(mutations);
+                        else
+                            if(fitnesses[2] < fitnesses[3])
+                                ReplacePopulation(crosspoints);
+                            else
+                                ReplacePopulation(mutations);
+                    } else {
+                        if(fitnesses[1] < fitnesses[2])
+                            if(fitnesses[1] < fitnesses[3])
+                                ReplacePopulation(gladiators);
+                            else
+                                ReplacePopulation(mutations);
+                        else
+                            if(fitnesses[2] < fitnesses[3])
+                                ReplacePopulation(crosspoints);
+                            else
+                                ReplacePopulation(mutations);
+                    }
+                #endif
+            #endif
+        #endif
+
+        #ifdef ELITEISM 
+
+            #ifdef _PLOT_GRAPHS
+
+                #ifdef FIND_BEST 
+                    if (Helper::generations[g].population.best > Helper::generations[g].mutation.best) {
                         ReplacePopulation(population);
-                    else
+                    }else{
                         ReplacePopulation(mutations);
-                else
-                    if(fitnesses[2] > fitnesses[3])
-                        ReplacePopulation(crosspoints);
-                    else
+                    }
+                #else
+                    if (Helper::generations[g].population.worst < Helper::generations[g].mutation.worst) {
+                        // ReplacePopulation(population);
+                    }else{
                         ReplacePopulation(mutations);
-            }else{
-                if(fitnesses[1] > fitnesses[2])
-                    if(fitnesses[1] > fitnesses[3])
-                        ReplacePopulation(gladiators);
-                    else
-                        ReplacePopulation(mutations);
-                else
-                    if(fitnesses[2] > fitnesses[3])
-                        ReplacePopulation(crosspoints);
-                    else
-                        ReplacePopulation(mutations);
-            }
-        #else
-            if (fitnesses[0] < fitnesses[1]) {
-                if(fitnesses[0] < fitnesses[2])
-                    if(fitnesses[0] < fitnesses[3])
+                    }
+                #endif
+            #else
+                #ifdef FIND_BEST 
+                    if(fitnesses[0] > fitnesses[3]){
                         ReplacePopulation(population);
-                    else
+                    }else{
                         ReplacePopulation(mutations);
-                else
-                    if(fitnesses[2] < fitnesses[3])
-                        ReplacePopulation(crosspoints);
-                    else
+                    }
+                #else
+                    if(fitnesses[0] < fitnesses[3]){
+                        ReplacePopulation(population);
+                    }else{
                         ReplacePopulation(mutations);
-            }else{
-                if(fitnesses[1] < fitnesses[2])
-                    if(fitnesses[1] < fitnesses[3])
-                        ReplacePopulation(gladiators);
-                    else
-                        ReplacePopulation(mutations);
-                else
-                    if(fitnesses[2] < fitnesses[3])
-                        ReplacePopulation(crosspoints);
-                    else
-                        ReplacePopulation(mutations);
-            }
+                    }
+                #endif
+
+            #endif
+
         #endif
 
+        #ifdef SIMPLE_PASSDOWN
+            ReplacePopulation(mutations);
+        #endif
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //
+        //                                          CALCULATE GENERATIONAL FITNESS AND HEIGHT
+        //
+        ///////////////////
 
         #ifdef FIND_BEST
-            best_fitnesses[g] = Helper::getPopulationHeight(population);
+            Helper::best_fitnesses[g] = Helper::getPopulationHeight(population);
         #else
-            worst_fitnesses[g] = Helper::getPopulationHeight(population);
+            Helper::worst_fitnesses[g] = Helper::getPopulationHeight(population);
         #endif
 
-        average_fitnesses[g] = Helper::getPopulationFitness(population) / POPULATION_SIZE;
+        Helper::average_fitnesses[g] = Helper::getPopulationFitness(population) / POPULATION_SIZE;
 
-        printf("\n\nGeneration %d\n", g);
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //
+        //                                          PRINT GENERATIONAL FITNESS AND HEIGHT
+        //
+        ///////////////////
 
-        #ifdef FIND_BEST
-            printf("Best fitness: %f\n", best_fitnesses[g]);
-        #else
-            printf("Worst fitness: %f\n", worst_fitnesses[g]);
-        #endif
+        #ifdef _DEBUG_GENERATION
+
+            printf("\n\nGeneration %d\n", g);
+
+            #ifdef FIND_BEST
+                printf("Best fitness: %f\n", Helper::best_fitnesses[g]);
+            #else
+                printf("Worst fitness: %f\n", Helper::worst_fitnesses[g]);
+            #endif
+            
+            printf("Average fitness: %f\n", Helper::average_fitnesses[g]);
         
-        printf("Average fitness: %f\n", average_fitnesses[g]);
-
-
+        #endif
 
     }
 
@@ -423,16 +555,20 @@ bool Assignment::runAssignment(){
     //
     ///////////////////
 
-    #ifdef FIND_BEST
-        printf("\n\nBest fitnesses:\n");
-        for (int i = 0; i < NUMBER_OF_GENERATIONS; i++) {
-            printf("%d:  B:[%f]  A: [%f]\n", i, best_fitnesses[i], average_fitnesses[i]);
-        }
-    #else
-        printf("\n\nWorst fitnesses:\n");
-        for (int i = 0; i < NUMBER_OF_GENERATIONS; i++) {
-            printf("%d:  W:[%f]  A: [%f]\n", i, worst_fitnesses[i], average_fitnesses[i]);
-        }
+    #ifdef _DEBUG_FITNESS
+
+        #ifdef FIND_BEST
+            printf("\n\nBest fitnesses:\n");
+            for (int i = 0; i < NUMBER_OF_GENERATIONS; i++) {
+                printf("%d:  B:[%f]  A: [%f]\n", i, Helper::best_fitnesses[i], Helper::average_fitnesses[i]);
+            }
+        #else
+            printf("\n\nWorst fitnesses:\n");
+            for (int i = 0; i < NUMBER_OF_GENERATIONS; i++) {
+                printf("%d:  W:[%f]  A: [%f]\n", i, Helper::worst_fitnesses[i], Helper::average_fitnesses[i]);
+            }
+        #endif
+
     #endif
 
     return true;
