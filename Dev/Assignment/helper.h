@@ -20,6 +20,16 @@ struct Generation {
     Stats mutation;
 };
 
+struct GenerationHistory {
+    void* population[POPULATION_SIZE];
+    void* gladiators[POPULATION_SIZE];
+    void* crosspoints[POPULATION_SIZE];
+    void* mutations[POPULATION_SIZE];
+
+
+
+};
+
 
 namespace Helper {
 
@@ -32,6 +42,14 @@ namespace Helper {
     extern float average_fitnesses[NUMBER_OF_GENERATIONS];
     extern Generation generations[NUMBER_OF_GENERATIONS];
 
+    extern GenerationHistory generation_history[NUMBER_OF_GENERATIONS];
+    extern int generation_index;
+    extern int generation_type_index;
+
+    extern bool cycle;
+    extern int cycle_speed;
+    extern int cycle_timer;
+
     void generateGenes(Individual *individual);
     void calculateFitness(Individual *individual);
     void printGenes(Individual *individual);
@@ -41,5 +59,9 @@ namespace Helper {
     void printPopulation(void* population[]);
     float getPopulationFitness(void* population[]);
     float getPopulationHeight(void* population[]);
+
+    bool ClearPopulation(void* population[]);
+	
+	bool CopyPopulation(void* from[], void* to[]);
 
 }

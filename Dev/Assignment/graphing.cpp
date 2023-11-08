@@ -13,15 +13,7 @@
 
 #include <string.h>
 
-
-ImColor float4toImColorRead(float input[4]) {
-	return ImColor(input[0], input[1], input[2], input[3]);
-}
-
-ImVec4 float4toImVec4Read(float input[4]) {
-	return ImVec4(input[0], input[1], input[2], input[3]);
-}
-
+#include <thread>
 
 
 
@@ -478,7 +470,184 @@ void gui::Menu() noexcept
 
 			}
 			ImPlot::EndPlot();
+
+		#ifdef _GRAPH_GENERATION_HISTORY
+			
+			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
+
+			ImGui::SliderInt("Population Type", &Helper::generation_type_index, 0, 3);
+
+			ImGui::SameLine();
+
+			ImGui::Button("Previous", ImVec2(100, 20));
+			{
+				if (ImGui::IsItemClicked()) {
+					if(Helper::generation_type_index > 0){
+
+						Helper::generation_type_index--;
+					} else {
+
+						Helper::generation_type_index = 3;
+						Helper::generation_index--;
+
+						if(Helper::generation_index < 0)
+							Helper::generation_index = (NUMBER_OF_GENERATIONS - 1);
+
+						
+					}
+				}
+			}
+
+			ImGui::SameLine();
+
+			ImGui::Button("Next", ImVec2(100,20));
+			{
+				if (ImGui::IsItemClicked()) {
+					if (Helper::generation_type_index < 3) {
+
+						Helper::generation_type_index++;
+					}
+					else {
+
+						Helper::generation_type_index = 0;
+						Helper::generation_index++;
+
+						if (Helper::generation_index > (NUMBER_OF_GENERATIONS - 1))
+							Helper::generation_index = 0;
+
+					}
+				}
+			}
+
+			ImGui::SliderInt("Generation", &Helper::generation_index, 0, NUMBER_OF_GENERATIONS - 1);
+
+
+			ImGui::Button("Start Cycle", ImVec2(100, 20));
+			{
+				if (ImGui::IsItemClicked()) {
+					Helper::cycle = true;
+				}
+			}
+
+			ImGui::SameLine();
+
+			ImGui::Button("Stop Cycle", ImVec2(100, 20));
+			{
+				if (ImGui::IsItemClicked()) {
+					Helper::cycle = false;
+
+				}
+			}
+
+
+			ImGui::SliderInt("Cycle Speed", &Helper::cycle_speed, 120, 1);
+
+			if(Helper::cycle){
+				Helper::cycle_timer++;
+
+				if (Helper::cycle_timer > Helper::cycle_speed) {
+					Helper::cycle_timer = 0;
+
+					Helper::generation_type_index++;
+
+					if (Helper::generation_type_index > 3) {
+						Helper::generation_type_index = 0;
+						Helper::generation_index++;
+
+						if (Helper::generation_index > (NUMBER_OF_GENERATIONS - 1))
+							Helper::generation_index = 0;
+					}
+				}
+			}
+
+
+
+
+
+			float generation_fitness_height[POPULATION_SIZE];
+			float generation_fitness_average[POPULATION_SIZE];
+			float individual_fitness_average[POPULATION_SIZE];
+
+			switch (Helper::generation_type_index){
+				case 0:
+					ImPlot::BeginPlot("Populations");
+					{
+						for (int k = 0; k < POPULATION_SIZE; k++) {
+							Individual* individual = static_cast<Individual*>(Helper::generation_history[Helper::generation_index].population[k]);
+							generation_fitness_height[k] = individual->getFitness();
+							generation_fitness_average[k] = Helper::generations[Helper::generation_index].population.average;
+							individual_fitness_average[k] = (individual->getFitness() / NUMBER_OF_GENES);
+						}
+						ImPlot::PlotLine("Fitness", generation_fitness_height, POPULATION_SIZE);
+						ImPlot::PlotLine("Height Average", generation_fitness_average, POPULATION_SIZE);
+						ImPlot::PlotLine("Individual Average", individual_fitness_average, POPULATION_SIZE);
+						
+					}
+					ImPlot::EndPlot();
+					break;
+				case 1:
+					ImPlot::BeginPlot("Gladiators");
+					{
+						for (int k = 0; k < POPULATION_SIZE; k++) {
+							Individual* individual = static_cast<Individual*>(Helper::generation_history[Helper::generation_index].gladiators[k]);
+							generation_fitness_height[k] = individual->getFitness();
+							generation_fitness_average[k] = Helper::generations[Helper::generation_index].gladiator.average;
+							individual_fitness_average[k] = individual->getFitness() / NUMBER_OF_GENES;
+						}
+
+						ImPlot::PlotLine("Fitness", generation_fitness_height, POPULATION_SIZE);
+						ImPlot::PlotLine("Average", generation_fitness_average, POPULATION_SIZE);
+						ImPlot::PlotLine("Individual Average", individual_fitness_average, POPULATION_SIZE);
+
+					}
+					ImPlot::EndPlot();
+					break;
+				case 2:
+					ImPlot::BeginPlot("Crosspoints");
+					{
+						for (int k = 0; k < POPULATION_SIZE; k++) {
+							Individual* individual = static_cast<Individual*>(Helper::generation_history[Helper::generation_index].crosspoints[k]);
+							generation_fitness_height[k] = individual->getFitness();
+							generation_fitness_average[k] = Helper::generations[Helper::generation_index].crosspoint.average;
+							individual_fitness_average[k] = individual->getFitness() / NUMBER_OF_GENES;
+						}
+
+						ImPlot::PlotLine("Fitness", generation_fitness_height, POPULATION_SIZE);
+						ImPlot::PlotLine("Average", generation_fitness_average, POPULATION_SIZE);
+						ImPlot::PlotLine("Individual Average", individual_fitness_average, POPULATION_SIZE);
+					}
+					ImPlot::EndPlot();
+					break;
+				case 3:
+					ImPlot::BeginPlot("Mutations");
+					{
+						for (int k = 0; k < POPULATION_SIZE; k++) {
+							Individual* individual = static_cast<Individual*>(Helper::generation_history[Helper::generation_index].mutations[k]);
+							generation_fitness_height[k] = individual->getFitness();
+							generation_fitness_average[k] = Helper::generations[Helper::generation_index].mutation.average;
+							individual_fitness_average[k] = individual->getFitness() / NUMBER_OF_GENES;
+						}
+
+						ImPlot::PlotLine("Fitness", generation_fitness_height, POPULATION_SIZE);
+						ImPlot::PlotLine("Average", generation_fitness_average, POPULATION_SIZE);
+						ImPlot::PlotLine("Individual Average", individual_fitness_average, POPULATION_SIZE);
+					}
+					ImPlot::EndPlot();
+					break;
+			}
+
+			
+
+
+			
+
+
+
+		#endif
+
+
 		
+
 
 	#endif
 
