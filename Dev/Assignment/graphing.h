@@ -6,6 +6,7 @@
 namespace gui {
 	constexpr int WIDTH = 1900;
 	constexpr int HEIGHT = 1040;
+
 	
 	inline bool exit = true;
 	
@@ -46,6 +47,6 @@ namespace gui {
 
 
     bool graphing() noexcept;
-	
+
 	
 }

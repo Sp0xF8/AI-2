@@ -12,7 +12,24 @@
 //
 ///////////////////
 
-// #define FIND_BEST
+#define FIND_BEST
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//   SELECT A SPECIFIC TEST FUNCTION
+//     ONLY ONE OF THE FOLLOWING CAN BE DEFINED AT A TIME
+//
+//     - SIMPLE_TEST : SIMPLE TEST FUNCTION
+//     - ADVANCED_TEST : ADVANCED TEST FUNCTION [MINIMISATION AND MAXIMISATION]
+//
+///////////////////
+
+// #define SIMPLE_TEST
+
+#define ADVANCED_TEST
+
+// #define COMPLEX_TEST
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -26,8 +43,8 @@
 //
 ///////////////////
 
-#define ELITEISM
-// #define HEAVY_ELITEISM
+// #define ELITEISM
+#define HEAVY_ELITEISM
 // #define SIMPLE_PASSDOWN
 
 
@@ -69,8 +86,15 @@
 //   TOURNAMENT_SIZE : NUMBER OF INDIVIDUALS IN A GLADIATOR TOURNAMENT
 //
 ///////////////////
+#ifdef FIND_BEST
 
-#define TOURNAMENT_SIZE 3
+    #define TOURNAMENT_SIZE 3
+
+#else
+
+    #define TOURNAMENT_SIZE 2
+
+#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,12 +109,12 @@
 
 #ifdef FIND_BEST
 
-    #define MUTATION_RATE 0.03
-    #define MUTATION_HEIGHT 0.1
+    #define MUTATION_RATE 0.28
+    #define MUTATION_HEIGHT 0.02
 #else
 
-    #define MUTATION_RATE 0.03
-    #define MUTATION_HEIGHT 0.2
+    #define MUTATION_RATE 0.11
+    #define MUTATION_HEIGHT 0.28
 #endif
 
 
@@ -148,9 +172,21 @@
     #define _GRAPH_GLADIATOR
     #define _GRAPH_CROSSPOINT
     #define _GRAPH_MUTATION
+    #define _GRAPH_GENERATION_HISTORY
 
 #endif
 
     // #define _GRAPH_FITNESS
     // #define _GRAPH_FITNESS_AVERAGE
 
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//   TOGGLE META AI
+//
+//   _META_AI : TOGGLES META AI
+//
+///////////////////
+
+// #define _META_AI
