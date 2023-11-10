@@ -91,17 +91,17 @@ void Helper::calculateFitness(Individual *individual) {
 
         float temp;
 
-        for (int i = 0; i < NUMBER_OF_GENES; i++) {
+        for (int i = 1; i < NUMBER_OF_GENES; i++) {
 
             //first minimisation problem
 
-            temp = pow((pow(( 2 * genes[i] ), 2) - (genes[i]-1)), 2);
+            temp += pow((pow(( 2 * genes[i] ), 2) - ( genes[i-1])), 2);
 
-            temp += pow((genes[i] - 1), 2);
-
-
-            fitness += temp;
         }
+
+        fitness = temp;
+
+        fitness += pow((genes[0] - 1), 2);
 
     #endif
 
@@ -109,18 +109,18 @@ void Helper::calculateFitness(Individual *individual) {
 
         float temp, midpoint;
 
-        for (int i = 0; i < NUMBER_OF_GENES; i++) {
 
-            //first minimisation problem
+        for(int k = 1; k < NUMBER_OF_GENES; k++){
 
-            midpoint = (genes[i] * 0.5);
-
-            temp = (pow(midpoint, 2) + pow(midpoint, 4));
-
-            temp +=  pow(genes[i], 2);
-
-            fitness += temp;
+            midpoint += (0.5 * k) * genes[i];
         }
+
+        temp = pow(midpoint, 2) + pow(midpoint, 4);
+
+        for (int k = 1; k < NUMBER_OF_GENES; k++){
+            fitness += pow(genes[k], 2) + temp;
+        }
+
 
 
     #endif
