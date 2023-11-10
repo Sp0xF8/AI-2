@@ -38,6 +38,8 @@ void* gladiators[POPULATION_SIZE];
 void* crosspoints[POPULATION_SIZE];
 void* mutations[POPULATION_SIZE];
 
+int tempPlato = 0;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //                                 SIMPLE FUNCTION TO GENERATE A POPULATION
@@ -389,6 +391,35 @@ bool ReplacePopulation(void* best_population[]){
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//                                 FUNCTION TO FIGURE OUT IF THE GENERATIONS HAVE PLATOED
+//      TAKES ARGUMENTS:
+//          NONE
+//
+//
+//      CHECKS IF THE FITNESS OF THE CURRENT GENERATION IS WITHIN BOUNDS OF A GEBERATION 10 GENERATIONS AGO
+//          IF IT IS THEN THE GENERATIONS HAVE PLATOED
+//
+//      RETURNS:
+//          true : IF THE GENERATIONS HAVE PLATOED
+//          false : IF THE GENERATIONS HAVE NOT PLATOED
+//
+///////////////////
+
+bool CheckPlato(){
+
+    if(g > 10){
+        if(Helper::average_fitnesses[g] < Helper::average_fitnesses[g - 10] + PLATO_HEIGHT && Helper::average_fitnesses[g] > Helper::average_fitnesses[g - 10] - PLATO_HEIGHT){
+            return true;
+        }
+    }
+
+
+
+    return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //                                 THIS IS THE PART OF THE PROGRAM WHICH IS CALLED FROM MAIN
 //      TAKES ARGUMENTS:
 //          #NONE
@@ -409,9 +440,9 @@ bool Assignment::runAssignment(){
 
     #ifdef _META_AI
     
-    for (tournament_size = 2; tournament_size < 10; tournament_size++) {
-        for ( mutation_rate = 0.0; mutation_rate < 0.3; mutation_rate += 0.01) {
-            for ( mutation_height = 0.0; mutation_height < 0.5; mutation_height += 0.01) {
+    for (tournament_size = 2; tournament_size < 5; tournament_size++) {
+        for ( mutation_rate = 0.0; mutation_rate < 0.3; mutation_rate += 0.05) {
+            for ( mutation_height = 0.0; mutation_height < 0.5; mutation_height += 0.05) {
 
                 // printf("Mutation rate: %f\n", mutation_rate);
                 // printf("Mutation height: %f\n", mutation_height);
@@ -780,11 +811,45 @@ bool Assignment::runAssignment(){
                     
                     #endif
 
-
-                }
                     #ifdef _META_AI
 
-                        printf("Average fitness: %f\n", Helper::average_fitnesses[NUMBER_OF_GENERATIONS - 1]);
+                        #ifdef PLATO_HEIGHT
+                            if(tempPlato == 0){
+                                
+                                if(CheckPlato()){
+                                    tempPlato = g;
+                                    
+                                }
+                            }
+                        #endif
+                    #endif
+
+
+
+                }
+                #ifdef _META_AI
+
+                    printf("Average fitness: %f\n", Helper::average_fitnesses[NUMBER_OF_GENERATIONS - 1]);
+
+                        
+
+                    MetaData current_data;
+                    current_data.mutation_rate = mutation_rate;
+                    current_data.mutation_height = mutation_height;
+                    current_data.tournament_size = (float)tournament_size;
+
+                    current_data.ending_fitness_height = Helper::average_fitnesses[NUMBER_OF_GENERATIONS - 1];
+
+                    #ifdef PLATO_HEIGHT
+                        current_data.plato_confirmed = tempPlato;
+                        tempPlato = 0;
+                    #endif
+
+
+                    Helper::meta_data.emplace_back(current_data);
+                            
+
+                        
 
                     
 

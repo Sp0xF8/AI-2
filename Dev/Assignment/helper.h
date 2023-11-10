@@ -2,6 +2,8 @@
 
 #include <individual.h>
 
+#include <vector>
+
 
 struct Stats {
     #ifdef FIND_BEST
@@ -26,8 +28,19 @@ struct GenerationHistory {
     void* crosspoints[POPULATION_SIZE];
     void* mutations[POPULATION_SIZE];
 
+};
 
 
+struct MetaData {
+    float mutation_rate;
+    float mutation_height;
+    float tournament_size;
+
+    float ending_fitness_height;
+
+    #ifdef PLATO_HEIGHT
+        int plato_confirmed;
+    #endif
 };
 
 
@@ -40,6 +53,8 @@ namespace Helper {
     #endif
 
     extern float average_fitnesses[NUMBER_OF_GENERATIONS];
+
+
     extern Generation generations[NUMBER_OF_GENERATIONS];
 
     extern GenerationHistory generation_history[NUMBER_OF_GENERATIONS];
@@ -49,6 +64,8 @@ namespace Helper {
     extern bool cycle;
     extern int cycle_speed;
     extern int cycle_timer;
+
+    extern std::vector<MetaData> meta_data;
 
     void generateGenes(Individual *individual);
     void calculateFitness(Individual *individual);
