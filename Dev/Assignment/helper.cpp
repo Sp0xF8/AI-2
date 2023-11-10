@@ -27,6 +27,8 @@ namespace Helper {
         int cycle_speed = 100;
 
         int cycle_timer = 0;
+
+        std::vector<MetaData> meta_data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -361,3 +363,7 @@ bool Helper::CopyPopulation(void* from[], void* to[]){
 
     return true;
 }
+
+
+
+

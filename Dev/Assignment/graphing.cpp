@@ -16,6 +16,9 @@
 #include <thread>
 
 
+int menu_index = 0;
+
+
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(
 	HWND window,
@@ -645,12 +648,129 @@ void gui::Menu() noexcept
 
 		#endif
 
-
-		
-
-
 	#endif
 
+
+
+	#ifdef _META_AI
+
+		ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
+		ImGui::Button("View Generalised Data", ImVec2(ImGui::GetContentRegionAvail().x/3 - 10, 20));
+		{
+			if (ImGui::IsItemClicked()) {
+				menu_index = 0;
+			}
+		}
+
+		ImGui::SameLine();
+
+		ImGui::Button("View Arguments By Fitness", ImVec2(ImGui::GetContentRegionAvail().x / 3 - 10, 20));
+		{
+			if (ImGui::IsItemClicked()) {
+				menu_index = 1;
+			}
+		}
+
+		ImGui::SameLine();
+
+		ImGui::Button("View Plato preformance", ImVec2(ImGui::GetContentRegionAvail().x / 3 - 10, 20));
+		{
+			if (ImGui::IsItemClicked()) {
+				menu_index = 2;
+			}
+		}
+
+
+		switch (menu_index)
+		{
+		case 0:	{
+
+				ImPlot::BeginPlot("Meta AI");
+				{
+
+					
+
+					for (int i = 0; i < Helper::meta_data.size(); i++) {
+
+
+						ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+						ImPlot::PlotStems("Mutation Rate", &Helper::meta_data[i].ending_fitness_height, &Helper::meta_data[i].mutation_rate, 1);
+						
+						ImPlot::SetNextMarkerStyle(ImPlotMarker_Square);
+						ImPlot::PlotStems("Mutation Height", &Helper::meta_data[i].ending_fitness_height, &Helper::meta_data[i].mutation_height, 1);
+						
+						ImPlot::SetNextMarkerStyle(ImPlotMarker_Diamond);
+						ImPlot::PlotStems("Tournament Size", &Helper::meta_data[i].ending_fitness_height, &Helper::meta_data[i].tournament_size, 1);
+					}
+				}
+				ImPlot::EndPlot();
+
+
+			break;
+		}
+
+		case 1:	{
+
+			ImPlot::BeginPlot("View Args by Fitness");
+			{
+				std::vector<float> ending_fitnesses;
+
+				for (int i = 0; i < Helper::meta_data.size(); i++){
+					ending_fitnesses.emplace_back(Helper::meta_data[i].ending_fitness_height);
+				}
+
+				ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+				ImPlot::PlotStems("Ending Fitnesses", ending_fitnesses.data(), Helper::meta_data.size());
+			}
+			ImPlot::EndPlot();
+		
+
+			break;
+		}
+
+		case 2: {
+
+			ImPlot::BeginPlot("Plato Preformance");
+			{
+				std::vector<float> plato_confirmed;
+
+				for (int i = 0; i < Helper::meta_data.size(); i++) {
+					plato_confirmed.emplace_back(Helper::meta_data[i].plato_confirmed);
+				}
+
+				ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+				ImPlot::PlotStems("Plato Confirmed", plato_confirmed.data(), Helper::meta_data.size());
+			}
+			ImPlot::EndPlot();
+
+			break;
+		}
+
+		default:
+			break;
+		}
+
+	ImGui::BeginChild("MetaData Lookup", ImVec2(ImGui::GetContentRegionAvail().x, 100), true); 
+	{
+		int lookup_index = 0;
+
+		ImGui::InputInt("Generation", &lookup_index);
+
+		ImGui::Text("Mutation Rate: %f", Helper::meta_data[lookup_index].mutation_rate);
+		ImGui::Text("Mutation Height: %f", Helper::meta_data[lookup_index].mutation_height);
+		ImGui::Text("Tournament Size: %f", Helper::meta_data[lookup_index].tournament_size);
+		ImGui::Text("Ending Fitness Height: %f", Helper::meta_data[lookup_index].ending_fitness_height);
+
+		#ifdef PLATO_HEIGHT
+
+			ImGui::Text("Plato Confirmed: %i", Helper::meta_data[lookup_index].plato_confirmed);
+
+		#endif
+	}
+	ImGui::EndChild();
+		
+
+	#endif
 }
 
 
