@@ -124,6 +124,8 @@ bool GladiatorSelection(){
             gladiator->setFitness(best.getFitness());
             gladiators[i] = gladiator;
 
+            
+
 
 
         }
