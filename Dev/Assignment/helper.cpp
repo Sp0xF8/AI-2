@@ -365,5 +365,85 @@ bool Helper::CopyPopulation(void* from[], void* to[]){
 }
 
 
+MetaData* Helper::Top10Gens(){
 
+    MetaData* top10 = new MetaData[NUMBER_OF_RESULTS];
 
+    for (int i = 0; i < NUMBER_OF_RESULTS; i++) {
+        top10[i] = meta_data[i];
+    }
+
+    // find the best 10 candidates from meta_data and add to top10
+    for (int i = NUMBER_OF_RESULTS - 1; i < meta_data.size(); i++) {
+        for (int j = 0; j < NUMBER_OF_RESULTS; j++) {
+
+            #ifdef FIND_BEST
+                if (meta_data[i].ending_fitness_height > top10[j].ending_fitness_height) {
+                    top10[j] = meta_data[i];
+                    break;
+                }
+            #else
+                if (meta_data[i].ending_fitness_height < top10[j].ending_fitness_height) {
+                    top10[j] = meta_data[i];
+                    break;
+                }
+            #endif
+        }
+    }
+
+    return top10;
+}
+
+float Helper::GetSolutionFitness(MetaData meta){
+
+    float solution_fitness = 0;
+
+    int gen_loops, glad_loops, cross_loops, mut_loops;
+
+    if(meta.plato_confirmed != 0){
+        gen_loops = meta.plato_confirmed * POPULATION_SIZE;
+    }
+    else{
+        gen_loops = NUMBER_OF_GENERATIONS * POPULATION_SIZE;
+    }
+
+    glad_loops = gen_loops * (TOURNAMENT_SIZE * TOURNAMENT_SIZE - 1);
+
+    cross_loops = (gen_loops * (POPULATION_SIZE / 2)) * NUMBER_OF_GENES;
+
+    mut_loops = (gen_loops * POPULATION_SIZE) * NUMBER_OF_GENES;
+
+    solution_fitness = (gen_loops + glad_loops + cross_loops + mut_loops) * meta.ending_fitness_height;
+    
+
+    return solution_fitness;
+}
+
+MetaData* Helper::GetTopSolutions(){
+
+    MetaData* top10sols = new MetaData[NUMBER_OF_RESULTS];
+
+    for (int i = 0; i < NUMBER_OF_RESULTS; i++) {
+        top10sols[i] = meta_data[i];
+    }
+
+    // find the best 10 candidates from meta_data and add to top10
+    for (int i = NUMBER_OF_RESULTS - 1; i < meta_data.size(); i++) {
+        for (int j = 0; j < NUMBER_OF_RESULTS; j++) {
+
+            #ifdef FIND_BEST
+                if (meta_data[i].solution_fitness > top10sols[j].solution_fitness) {
+                    top10sols[j] = meta_data[i];
+                    break;
+                }
+            #else
+                if (meta_data[i].solution_fitness < top10sols[j].solution_fitness) {
+                    top10sols[j] = meta_data[i];
+                    break;
+                }
+            #endif
+        }
+    }
+
+    return top10sols;
+}

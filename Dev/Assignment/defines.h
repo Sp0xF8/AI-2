@@ -50,8 +50,8 @@
 //
 ///////////////////
 
-// #define ELITEISM
-#define HEAVY_ELITEISM
+#define ELITEISM
+// #define HEAVY_ELITEISM
 // #define SIMPLE_PASSDOWN
 
 
@@ -62,7 +62,8 @@
 //      RAMDOM SEED IS OUTPUTTED TO THE CONSOLE WHEN THE SEED == 0
 //
 ///////////////////
-// #define RANDOM_SEED 1699118515
+
+#define RANDOM_SEED 1699118515
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -99,7 +100,7 @@
 
 #else
 
-    #define TOURNAMENT_SIZE 2
+    #define TOURNAMENT_SIZE 4
 
 #endif
 
@@ -121,7 +122,7 @@
 #else
 
     #define MUTATION_RATE 0.11
-    #define MUTATION_HEIGHT 0.28
+    #define MUTATION_HEIGHT 0.01
 #endif
 
 
@@ -180,7 +181,7 @@
 ///////////////////
 
 
-// #define _PLOT_GRAPHS
+#define _PLOT_GRAPHS
 
 #ifdef _PLOT_GRAPHS
 
@@ -205,4 +206,6 @@
 //
 ///////////////////
 
-#define _META_AI
+// #define _META_AI
+
+#define NUMBER_OF_RESULTS 10
