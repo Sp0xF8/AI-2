@@ -3,6 +3,10 @@
 
 #include <graphing.h>
 
+#include <defines.h>
+
+#include <chrono>
+
 
 
 #include <iostream>
@@ -10,7 +14,25 @@
 int main (){
 
 
-    Assignment::runAssignment();
+    #ifdef _TIMER
+
+        std::chrono::steady_clock totalelapsed;
+        auto start = std::chrono::high_resolution_clock::now();
+  
+        for (int i = 0; i < 100; i++){
+    #endif
+
+            Assignment::runAssignment();
+
+    #ifdef _TIMER
+        }
+
+
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = end - start;
+        float average = elapsed.count() / 100;
+        std::cout << "Time taken by program is : " << average << " seconds" << std::endl;
+    #endif
 
     gui::graphing();
 

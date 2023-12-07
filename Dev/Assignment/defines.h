@@ -31,9 +31,9 @@
 
 #else 
 
-    #define ADVANCED_TEST
+    // #define ADVANCED_TEST
 
-    // #define COMPLEX_TEST
+    #define COMPLEX_TEST
 
 #endif
 
@@ -133,7 +133,7 @@
 ///////////////////
 
 
-#define PLATO_HEIGHT 0.01
+#define PLATO_HEIGHT 0.005
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -181,7 +181,7 @@
 ///////////////////
 
 
-#define _PLOT_GRAPHS
+// #define _PLOT_GRAPHS
 
 #ifdef _PLOT_GRAPHS
 
@@ -206,6 +206,8 @@
 //
 ///////////////////
 
-// #define _META_AI
+#define _META_AI
+
+// #define _TIMER
 
 #define NUMBER_OF_RESULTS 10

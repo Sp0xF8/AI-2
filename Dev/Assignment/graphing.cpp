@@ -888,12 +888,15 @@ void gui::Menu() noexcept
                     lookup_index = Helper::meta_data.size() - 1;
 
                 std::vector<float> solution_fitnesses;
+                std::vector<float> ending_fitnesses;
 
                 for (int i = 0; i < Helper::meta_data.size(); i++) {
                     solution_fitnesses.emplace_back(Helper::meta_data[i].solution_fitness);
+                    ending_fitnesses.emplace_back(Helper::meta_data[i].ending_fitness_height);
                 }
 
                 ImPlot::PlotLine("Solution Fitness", solution_fitnesses.data(), Helper::meta_data.size());
+                ImPlot::PlotLine("Ending Fitnesses", ending_fitnesses.data(), Helper::meta_data.size());
             }
             ImPlot::EndPlot();
 

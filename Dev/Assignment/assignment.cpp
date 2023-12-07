@@ -448,9 +448,9 @@ bool Assignment::runAssignment(){
 
 	#ifdef _META_AI
 	
-	for (tournament_size = 2; tournament_size < 5; tournament_size++) {
-		for ( mutation_rate = 0.01; mutation_rate < 0.3; mutation_rate += 0.01) {
-			for ( mutation_height = 0.01; mutation_height < 0.3; mutation_height += 0.01) {
+	for (tournament_size = 2; tournament_size < 10; tournament_size++) {
+		for ( mutation_rate = 0.02; mutation_rate < 0.3; mutation_rate += 0.01) {
+			for ( mutation_height = 0.04; mutation_height < 0.2; mutation_height += 0.01) {
 
 				// printf("Mutation rate: %f\n", mutation_rate);
 				// printf("Mutation height: %f\n", mutation_height);
@@ -825,7 +825,7 @@ bool Assignment::runAssignment(){
 							if(tempPlato == 0){
 								
 								if(CheckPlato()){
-									tempPlato = g;
+									tempPlato = g - 5;
 									
 								}
 							}
@@ -850,8 +850,13 @@ bool Assignment::runAssignment(){
 					current_data.ending_fitness_height = Helper::average_fitnesses[NUMBER_OF_GENERATIONS - 1];
 
 					#ifdef PLATO_HEIGHT
-						current_data.plato_confirmed = tempPlato;
-						tempPlato = 0;
+						if (tempPlato != 0){
+							current_data.plato_confirmed = tempPlato;
+							tempPlato = 0;
+						}else {
+
+							current_data.plato_confirmed = NUMBER_OF_GENERATIONS - 1;
+						}
 					#endif
 
 
