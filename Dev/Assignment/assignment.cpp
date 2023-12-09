@@ -448,8 +448,8 @@ bool Assignment::runAssignment(){
 
 	#ifdef _META_AI
 	
-	for (tournament_size = 2; tournament_size < 10; tournament_size++) {
-		for ( mutation_rate = 0.02; mutation_rate < 0.3; mutation_rate += 0.01) {
+	for (tournament_size = 3; tournament_size < 10; tournament_size++) {
+		for ( mutation_rate = 0.04; mutation_rate < 0.25; mutation_rate += 0.01) {
 			for ( mutation_height = 0.04; mutation_height < 0.2; mutation_height += 0.01) {
 
 				// printf("Mutation rate: %f\n", mutation_rate);
@@ -516,6 +516,8 @@ bool Assignment::runAssignment(){
 					#ifdef _DEBUG_GENERATION
 						printf("\n\nGeneration %d\n", g);
 					#endif
+
+
 
 					////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 					//
@@ -835,6 +837,9 @@ bool Assignment::runAssignment(){
 
 
 				}
+                    #ifdef RUN_GENETIC_ALGORITHM
+                    
+                    #endif
 				#ifdef _META_AI
 
 					// printf("Average fitness: %f\n", Helper::average_fitnesses[NUMBER_OF_GENERATIONS - 1]);
@@ -961,4 +966,86 @@ bool Assignment::runAssignment(){
 	#endif
 
 	return true;
+}
+
+
+bool Assignment::runHillClimber(){
+
+
+
+    #ifdef RANDOM_SEED
+                    
+        if(RANDOM_SEED != 0){
+            srand(RANDOM_SEED);
+        }else{
+            printf("Seed is 0, using time as seed\n");
+            int seed = time(NULL);
+            printf("Random seed: %d\n", seed);
+            srand(seed);
+        }
+    #else
+        int seed = time(NULL);
+        printf("Random seed: %d\n", seed);
+        srand(seed);
+    #endif
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    //                                          GENERATE INITIAL POPULATION
+    //
+    ///////////////////
+
+    Individual *HillClimber = new Individual();
+
+    Helper::generateGenes(HillClimber);              // Populate initial population
+
+    Helper::calculateFitness(HillClimber);           // Calculate fitness of each individual
+
+    Helper::fitnesses.emplace_back(HillClimber->getFitness());
+
+    #ifdef _DEBUG_POPULATION
+        printf("Initial CLimber\n");
+        printf("Fitness: %f\n", HillClimber->getFitness());
+        printf("Genes: ");
+        for (int i = 0; i < NUMBER_OF_GENES; i++) {
+            printf("%f ", HillClimber->getGenes()[i]);
+        }
+        printf("\n");
+    #endif
+
+    Individual *tempClimber = new Individual();
+
+    int zG = 0;
+
+    while(HillClimber->getFitness() > -7){
+
+        float *tempGenes = HillClimber->getGenes();
+        
+        int random_index = rand() % NUMBER_OF_GENES;
+
+        tempGenes[random_index] = (float)rand() / RAND_MAX;
+        tempClimber->setGenes(tempGenes);
+        Helper::calculateFitness(tempClimber);
+
+        if(tempClimber->getFitness() <= HillClimber->getFitness()){
+            HillClimber->setGenes(tempClimber->getGenes());
+            HillClimber->setFitness(tempClimber->getFitness());
+        }
+
+        Helper::fitnesses.emplace_back(HillClimber->getFitness());
+
+        // for (int i = 0; i < NUMBER_OF_GENES; i++) {
+        //     // printf("%f ", HillClimber->getGenes()[i]);
+
+        // }
+        // // printf("\n");
+        // printf("Fitness: %f\n", HillClimber->getFitness());
+
+        zG++;
+    }
+
+
+    printf("took %d generations\n", zG);
+    printf("Fitness: %f\n", HillClimber->getFitness());
+    return true;
 }

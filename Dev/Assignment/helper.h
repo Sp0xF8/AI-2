@@ -69,6 +69,8 @@ namespace Helper {
 
 	extern std::vector<MetaData> meta_data;
 
+    extern std::vector<float> fitnesses;
+
 	void generateGenes(Individual *individual);
 	void calculateFitness(Individual *individual);
 	void printGenes(Individual *individual);

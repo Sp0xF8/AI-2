@@ -333,6 +333,25 @@ void gui::Theme() noexcept
 
 void gui::Menu() noexcept
 {
+
+#ifdef RUN_HILL_CLIMBER
+
+    ImPlot::BeginPlot("Hill Climber");
+    {
+        float fitnesses[NUMBER_OF_GENERATIONS];
+        for (int i = 0; i < NUMBER_OF_GENERATIONS; i++) {
+            fitnesses[i] = Helper::fitnesses[i];
+        }
+
+        ImPlot::PlotLine("Fitness", fitnesses, NUMBER_OF_GENERATIONS);
+    }
+    ImPlot::EndPlot();
+
+#endif
+
+
+#ifdef RUN_GENETIC_ALGORITHM
+
 	ImPlot::BeginPlot("Winning Generations");
 	{
 
@@ -830,12 +849,12 @@ void gui::Menu() noexcept
                         ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
                         ImGui::Text("Test %d : placed %d", Helper::Top10Gens()[i].generation, i);
 
-                        ImGui::Text("Fitness: %f", Helper::Top10Gens()[i].ending_fitness_height);
+                        ImGui::Text("Fitness: %.10f", Helper::Top10Gens()[i].ending_fitness_height);
                         ImGui::Text("Mutation Rate: %f", Helper::Top10Gens()[i].mutation_rate);
                         ImGui::Text("Mutation Height: %f", Helper::Top10Gens()[i].mutation_height);
 
                         ImGui::Text("Tournament Size: %f", Helper::Top10Gens()[i].tournament_size);
-                        ImGui::Text("Solution Fitness: %f", Helper::Top10Gens()[i].solution_fitness);
+                        ImGui::Text("Solution Fitness: %.10f", Helper::Top10Gens()[i].solution_fitness);
 
                         #ifdef PLATO_HEIGHT
                             ImGui::Text("Plato Confirmed: %i", Helper::Top10Gens()[i].plato_confirmed);
@@ -856,12 +875,12 @@ void gui::Menu() noexcept
                         ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
                         ImGui::Text("Test %d : placed %d", Helper::GetTopSolutions()[i].generation, i);
 
-                        ImGui::Text("Fitness: %f", Helper::GetTopSolutions()[i].ending_fitness_height);
+                        ImGui::Text("Fitness: %.10f", Helper::GetTopSolutions()[i].ending_fitness_height);
                         ImGui::Text("Mutation Rate: %f", Helper::GetTopSolutions()[i].mutation_rate);
                         ImGui::Text("Mutation Height: %f", Helper::GetTopSolutions()[i].mutation_height);
 
                         ImGui::Text("Tournament Size: %f", Helper::GetTopSolutions()[i].tournament_size);
-                        ImGui::Text("Solution Fitness: %f", Helper::GetTopSolutions()[i].solution_fitness);
+                        ImGui::Text("Solution Fitness: %.10f", Helper::GetTopSolutions()[i].solution_fitness);
 
                         #ifdef PLATO_HEIGHT
                             ImGui::Text("Plato Confirmed: %i", Helper::GetTopSolutions()[i].plato_confirmed);
@@ -917,8 +936,8 @@ void gui::Menu() noexcept
 			ImGui::Text("Mutation Rate: %f", Helper::meta_data[lookup_index].mutation_rate);
 			ImGui::Text("Mutation Height: %f", Helper::meta_data[lookup_index].mutation_height);
 			ImGui::Text("Tournament Size: %f", Helper::meta_data[lookup_index].tournament_size);
-			ImGui::Text("Ending Fitness Height: %f", Helper::meta_data[lookup_index].ending_fitness_height);
-            ImGui::Text("Solution Fitness: %f", Helper::meta_data[lookup_index].solution_fitness);
+			ImGui::Text("Ending Fitness Height: %.10f", Helper::meta_data[lookup_index].ending_fitness_height);
+            ImGui::Text("Solution Fitness: %.10f", Helper::meta_data[lookup_index].solution_fitness);
 
 			#ifdef PLATO_HEIGHT
 
@@ -930,6 +949,8 @@ void gui::Menu() noexcept
 		
 
 	#endif
+
+#endif
 }
 
 

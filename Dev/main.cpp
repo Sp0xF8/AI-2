@@ -22,7 +22,16 @@ int main (){
         for (int i = 0; i < 100; i++){
     #endif
 
+    #ifdef RUN_GENETIC_ALGORITHM
+
             Assignment::runAssignment();
+
+    #endif
+
+    #ifdef RUN_HILL_CLIMBER
+
+            Assignment::runHillClimber();
+    #endif
 
     #ifdef _TIMER
         }

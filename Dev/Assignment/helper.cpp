@@ -29,6 +29,8 @@ namespace Helper {
 		int cycle_timer = 0;
 
 		std::vector<MetaData> meta_data;
+
+        std::vector<float> fitnesses;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,12 +51,13 @@ namespace Helper {
 
 void Helper::generateGenes(Individual *individual) {
 
-	
-	float temp_genes[NUMBER_OF_GENES];
+        float temp_genes[NUMBER_OF_GENES];
 
-	for (int i = 0; i < NUMBER_OF_GENES; i++) {
-		temp_genes[i] = static_cast<float>(std::rand()) / RAND_MAX;
-	}
+        for (int i = 0; i < NUMBER_OF_GENES; i++) {
+            temp_genes[i] = static_cast<float>(std::rand()) / RAND_MAX;
+        }
+
+
 
 	individual->setGenes(temp_genes);
 }
@@ -113,6 +116,29 @@ void Helper::calculateFitness(Individual *individual) {
 
 	#endif
 
+    #ifdef TRID_FUNCTION
+
+    
+    
+        float temp = 0, temp2 = 0;
+
+        for (int i = 0; i < NUMBER_OF_GENES; i++) {
+            temp += pow(genes[i] - 1, 2);
+        }
+
+        for (int i = 1; i < NUMBER_OF_GENES; i++) {
+            temp2 += genes[i] * genes[i-1];
+        }
+
+        fitness = temp - temp2;
+
+    
+
+        // for (int i = 0; i < NUMBER_OF_GENES; i++) {
+        //     fitness += i * pow(genes[i], 2);
+        // }
+        
+    #endif
 
 
 	individual->setFitness(fitness);
@@ -363,6 +389,10 @@ MetaData* Helper::Top10Gens(){
 
 	// find the best 10 candidates from meta_data and add to top10
 	for (int i = NUMBER_OF_RESULTS - 1; i < meta_data.size(); i++) {
+
+        if (meta_data[i].ending_fitness_height == 0) {
+            continue;
+        }
 		for (int j = 0; j < NUMBER_OF_RESULTS; j++) {
 
 			#ifdef FIND_BEST
@@ -416,7 +446,7 @@ float Helper::GetSolutionFitness(MetaData meta){
 
 	mut_loops = POPULATION_SIZE * NUMBER_OF_GENES;
 
-	solution_fitness = (gen_loops * (glad_loops + cross_loops + mut_loops)) * (meta.ending_fitness_height);
+	solution_fitness = (gen_loops * (glad_loops + cross_loops + mut_loops)) * meta.ending_fitness_height;//+ 0.0000001  sqrt(pow(meta.ending_fitness_height, 2))
 
 	return solution_fitness;
 }
@@ -431,8 +461,11 @@ MetaData* Helper::GetTopSolutions(){
 
 	// find the best 10 candidates from meta_data and add to top10
 	for (int i = NUMBER_OF_RESULTS - 1; i < meta_data.size(); i++) {
+        if(meta_data[i].solution_fitness == 0){
+            continue;
+        }
 		for (int j = 0; j < NUMBER_OF_RESULTS; j++) {
-
+ 
 			#ifdef FIND_BEST
 				if (meta_data[i].solution_fitness > top10sols[j].solution_fitness) {
 					top10sols[j] = meta_data[i];
