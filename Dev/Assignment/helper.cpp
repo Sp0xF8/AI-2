@@ -8,27 +8,29 @@
 #include <time.h>
 
 namespace Helper {
-    
-        #ifdef FIND_BEST
-            float best_fitnesses[NUMBER_OF_GENERATIONS];
-        #else
-            float worst_fitnesses[NUMBER_OF_GENERATIONS];
-        #endif
-    
-        float average_fitnesses[NUMBER_OF_GENERATIONS];
+	
+		#ifdef FIND_BEST
+			float best_fitnesses[NUMBER_OF_GENERATIONS];
+		#else
+			float worst_fitnesses[NUMBER_OF_GENERATIONS];
+		#endif
+	
+		float average_fitnesses[NUMBER_OF_GENERATIONS];
 
-        Generation generations[NUMBER_OF_GENERATIONS];
+		Generation generations[NUMBER_OF_GENERATIONS];
 
-        GenerationHistory generation_history[NUMBER_OF_GENERATIONS];
-        int generation_index = 0;
-        int generation_type_index = 0;
+		GenerationHistory generation_history[NUMBER_OF_GENERATIONS];
+		int generation_index = 0;
+		int generation_type_index = 0;
 
-        bool cycle = false;
-        int cycle_speed = 100;
+		bool cycle = false;
+		int cycle_speed = 100;
 
-        int cycle_timer = 0;
+		int cycle_timer = 0;
 
-        std::vector<MetaData> meta_data;
+		std::vector<MetaData> meta_data;
+
+        std::vector<float> fitnesses;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,14 +51,15 @@ namespace Helper {
 
 void Helper::generateGenes(Individual *individual) {
 
-    
-    float temp_genes[NUMBER_OF_GENES];
+        float temp_genes[NUMBER_OF_GENES];
 
-    for (int i = 0; i < NUMBER_OF_GENES; i++) {
-        temp_genes[i] = static_cast<float>(std::rand()) / RAND_MAX;
-    }
+        for (int i = 0; i < NUMBER_OF_GENES; i++) {
+            temp_genes[i] = static_cast<float>(std::rand()) / RAND_MAX;
+        }
 
-    individual->setGenes(temp_genes);
+
+
+	individual->setGenes(temp_genes);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,59 +78,70 @@ void Helper::generateGenes(Individual *individual) {
 ///////////////////
 
 void Helper::calculateFitness(Individual *individual) {
-    //calculate fitness aka test function
-    float fitness = 0;
-    float *genes = individual->getGenes();
+	//calculate fitness aka test function
+	float fitness = 0;
+	float *genes = individual->getGenes();
 
-    #ifdef SIMPLE_TEST
+	#ifdef SIMPLE_TEST
+
+		for (int i = 0; i < NUMBER_OF_GENES; i++) {
+			fitness += genes[i];
+		}
+
+	#endif
+
+	#ifdef ADVANCED_TEST
+
+		float temp = 0;
+
+		for (int i = 1; i < NUMBER_OF_GENES; i++) {
+
+			fitness += i * (pow(((2 * pow(genes[i], 2)) - genes[i-1]), 2));
+		}
+
+		fitness += pow((genes[0]-1), 2);
+
+	#endif
+
+	#ifdef COMPLEX_TEST
+
+		float temp = 0, temp2 = 0;
+
+		for (int i = 0; i < NUMBER_OF_GENES; i++) {
+			temp += pow(genes[i], 2);
+			temp2 += 0.5 * (i+1) * genes[i];
+		}
+
+		fitness = temp + pow(temp2, 2) + pow(temp2, 4);
+
+	#endif
+
+    #ifdef TRID_FUNCTION
+
+    
+    
+        float temp = 0, temp2 = 0;
 
         for (int i = 0; i < NUMBER_OF_GENES; i++) {
-            fitness += genes[i];
+            temp += pow(genes[i] - 1, 2);
         }
-
-    #endif
-
-    #ifdef ADVANCED_TEST
-
-        float temp;
 
         for (int i = 1; i < NUMBER_OF_GENES; i++) {
-
-            //first minimisation problem
-
-            temp += pow((pow(( 2 * genes[i] ), 2) - ( genes[i-1])), 2);
-
+            temp2 += genes[i] * genes[i-1];
         }
 
-        fitness = temp;
+        fitness = temp - temp2;
 
-        fitness += pow((genes[0] - 1), 2);
+    
 
-    #endif
-
-    #ifdef COMPLEX_TEST
-
-        float temp, midpoint;
-
-
-        for(int k = 1; k < NUMBER_OF_GENES; k++){
-
-            midpoint += (0.5 * k) * genes[i];
-        }
-
-        temp = pow(midpoint, 2) + pow(midpoint, 4);
-
-        for (int k = 1; k < NUMBER_OF_GENES; k++){
-            fitness += pow(genes[k], 2) + temp;
-        }
-
-
-
+        // for (int i = 0; i < NUMBER_OF_GENES; i++) {
+        //     fitness += i * pow(genes[i], 2);
+        // }
+        
     #endif
 
 
-
-    individual->setFitness(fitness);
+	individual->setFitness(fitness);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -147,14 +161,14 @@ void Helper::calculateFitness(Individual *individual) {
 
 void Helper::printGenes(Individual *individual) {
 
-    float *genes = individual->getGenes();
+	float *genes = individual->getGenes();
 
-    std::cout << "Genes: ";
+	std::cout << "Genes: ";
 
-    for (int i = 0; i < NUMBER_OF_GENES; i++) {
-        std::cout << genes[i] << " ";
-    }
-    std::cout << ";" << std::endl;
+	for (int i = 0; i < NUMBER_OF_GENES; i++) {
+		std::cout << genes[i] << " ";
+	}
+	std::cout << ";" << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -172,9 +186,9 @@ void Helper::printGenes(Individual *individual) {
 ///////////////////
 
 void Helper::printFitness(Individual *individual) {
-    //print fitness
-    float fitness = individual->getFitness();
-    std::cout << "Fitness: " << fitness << std::endl;
+	//print fitness
+	float fitness = individual->getFitness();
+	std::cout << "Fitness: " << fitness << std::endl;
 
 }
 
@@ -194,10 +208,10 @@ void Helper::printFitness(Individual *individual) {
 
 void Helper::printIndividual(Individual *individual) {
 
-    std::cout << "\n\nIndividual: " << std::endl;
-    //print genes and fitness
-    printGenes(individual);
-    printFitness(individual);
+	std::cout << "\n\nIndividual: " << std::endl;
+	//print genes and fitness
+	printGenes(individual);
+	printFitness(individual);
 
 }
 
@@ -218,12 +232,12 @@ void Helper::printIndividual(Individual *individual) {
 
 void Helper::printPopulation(void* population[]) {
 
-    std::cout << "Population: " << std::endl;
-    //print population
-    for (int i = 0; i < POPULATION_SIZE; i++) {
-        Individual *individual = (Individual*)population[i];
-        printIndividual(individual);
-    }
+	std::cout << "Population: " << std::endl;
+	//print population
+	for (int i = 0; i < POPULATION_SIZE; i++) {
+		Individual *individual = (Individual*)population[i];
+		printIndividual(individual);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -243,15 +257,15 @@ void Helper::printPopulation(void* population[]) {
 ///////////////////
 
 float Helper::getPopulationFitness(void* population[]) {
-    //calculate fitness of population
-    float fitness = 0;
+	//calculate fitness of population
+	float fitness = 0;
 
-    for (int i = 0; i < POPULATION_SIZE; i++) {
-        Individual *individual = (Individual*)population[i];
-        fitness += individual->getFitness();
-    }
+	for (int i = 0; i < POPULATION_SIZE; i++) {
+		Individual *individual = (Individual*)population[i];
+		fitness += individual->getFitness();
+	}
 
-    return fitness;
+	return fitness;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -277,34 +291,34 @@ float Helper::getPopulationFitness(void* population[]) {
 ///////////////////
 
 float Helper::getPopulationHeight(void* population[]) {
-    //calculate fitness of population
-    float height;
-    Individual *individual = (Individual*)population[0];
+	//calculate fitness of population
+	float height;
+	Individual *individual = (Individual*)population[0];
 
-    height = individual->getFitness();
+	height = individual->getFitness();
 
-    #ifdef FIND_BEST
+	#ifdef FIND_BEST
 
-        for (int i = 1; i < POPULATION_SIZE; i++) {
-            Individual *individual = (Individual*)population[i];
-            if (individual->getFitness() > height) {
-                height = individual->getFitness();
-            }
-            
-        }
+		for (int i = 1; i < POPULATION_SIZE; i++) {
+			Individual *individual = (Individual*)population[i];
+			if (individual->getFitness() > height) {
+				height = individual->getFitness();
+			}
+			
+		}
 
-    #else
-    
-            for (int i = 1; i < POPULATION_SIZE; i++) {
-                Individual *individual = (Individual*)population[i];
-                if (individual->getFitness() < height) {
-                    height = individual->getFitness();
-                }
-                
-            }
-    #endif
+	#else
+	
+			for (int i = 1; i < POPULATION_SIZE; i++) {
+				Individual *individual = (Individual*)population[i];
+				if (individual->getFitness() < height) {
+					height = individual->getFitness();
+				}
+				
+			}
+	#endif
 
-    return height;
+	return height;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -324,12 +338,12 @@ float Helper::getPopulationHeight(void* population[]) {
 
 bool Helper::ClearPopulation(void* population[]){
 
-    for (int i = 0; i < POPULATION_SIZE; i++) {
-        delete (Individual*)population[i];
-        population[i] = NULL;
-    }
+	for (int i = 0; i < POPULATION_SIZE; i++) {
+		delete (Individual*)population[i];
+		population[i] = NULL;
+	}
 
-    return true;
+	return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -352,18 +366,119 @@ bool Helper::ClearPopulation(void* population[]){
 
 bool Helper::CopyPopulation(void* from[], void* to[]){
 
-    
-    
-    for (int i = 0; i < POPULATION_SIZE; i++) {
-        Individual *individual = new Individual();
-        individual->setGenes(((Individual*)from[i])->getGenes());
-        individual->setFitness(((Individual*)from[i])->getFitness());
-        to[i] = individual;
-    }
+	
+	
+	for (int i = 0; i < POPULATION_SIZE; i++) {
+		Individual *individual = new Individual();
+		individual->setGenes(((Individual*)from[i])->getGenes());
+		individual->setFitness(((Individual*)from[i])->getFitness());
+		to[i] = individual;
+	}
 
-    return true;
+	return true;
 }
 
 
+MetaData* Helper::Top10Gens(){
 
+	MetaData* top10 = new MetaData[NUMBER_OF_RESULTS];
 
+	for (int i = 0; i < NUMBER_OF_RESULTS; i++) {
+		top10[i] = meta_data[i];
+	}
+
+	// find the best 10 candidates from meta_data and add to top10
+	for (int i = NUMBER_OF_RESULTS - 1; i < meta_data.size(); i++) {
+
+        if (meta_data[i].ending_fitness_height == 0) {
+            continue;
+        }
+		for (int j = 0; j < NUMBER_OF_RESULTS; j++) {
+
+			#ifdef FIND_BEST
+				if (meta_data[i].ending_fitness_height > top10[j].ending_fitness_height) {
+					top10[j] = meta_data[i];
+					break;
+				}
+			#else
+				if (meta_data[i].ending_fitness_height < top10[j].ending_fitness_height) {
+					top10[j] = meta_data[i];
+					break;
+				}
+			#endif
+		}
+	}
+
+	return top10;
+}
+
+float Helper::GetSolutionFitness(MetaData meta){
+
+	float solution_fitness = 0;
+
+	int gen_loops, glad_loops, cross_loops, mut_loops;
+
+	// if(meta.plato_confirmed != 0){
+	// 	gen_loops = meta.plato_confirmed * POPULATION_SIZE;
+	// }
+	// else{
+	// 	gen_loops = NUMBER_OF_GENERATIONS * POPULATION_SIZE;
+	// }
+
+	// glad_loops = gen_loops * (TOURNAMENT_SIZE * TOURNAMENT_SIZE - 1);
+
+	// cross_loops = (gen_loops * (POPULATION_SIZE / 2)) * NUMBER_OF_GENES;
+
+	// mut_loops = (gen_loops * POPULATION_SIZE) * NUMBER_OF_GENES;
+
+	// solution_fitness = (gen_loops + glad_loops + cross_loops + mut_loops) * meta.ending_fitness_height;
+	
+
+	if(meta.plato_confirmed != 0){
+		gen_loops = meta.plato_confirmed;
+	}	else	{
+		gen_loops = NUMBER_OF_GENERATIONS;
+	}
+
+	glad_loops = (TOURNAMENT_SIZE * TOURNAMENT_SIZE) * POPULATION_SIZE;
+
+	cross_loops = (POPULATION_SIZE / 2) * NUMBER_OF_GENES;
+
+	mut_loops = POPULATION_SIZE * NUMBER_OF_GENES;
+
+	solution_fitness = (gen_loops * (glad_loops + cross_loops + mut_loops)) * meta.ending_fitness_height;//+ 0.0000001  sqrt(pow(meta.ending_fitness_height, 2))
+
+	return solution_fitness;
+}
+
+MetaData* Helper::GetTopSolutions(){
+
+	MetaData* top10sols = new MetaData[NUMBER_OF_RESULTS];
+
+	for (int i = 0; i < NUMBER_OF_RESULTS; i++) {
+		top10sols[i] = meta_data[i];
+	}
+
+	// find the best 10 candidates from meta_data and add to top10
+	for (int i = NUMBER_OF_RESULTS - 1; i < meta_data.size(); i++) {
+        if(meta_data[i].solution_fitness == 0){
+            continue;
+        }
+		for (int j = 0; j < NUMBER_OF_RESULTS; j++) {
+ 
+			#ifdef FIND_BEST
+				if (meta_data[i].solution_fitness > top10sols[j].solution_fitness) {
+					top10sols[j] = meta_data[i];
+					break;
+				}
+			#else
+				if (meta_data[i].solution_fitness < top10sols[j].solution_fitness) {
+					top10sols[j] = meta_data[i];
+					break;
+				}
+			#endif
+		}
+	}
+
+	return top10sols;
+}
