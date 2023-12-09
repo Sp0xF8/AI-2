@@ -7,4 +7,6 @@ namespace Assignment {
 
     bool runAssignment();
 
+    bool runHillClimber();
+
 };

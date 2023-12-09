@@ -17,7 +17,7 @@
 
 
 int menu_index = 0;
-
+int lookup_index = 0;
 
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(
@@ -30,73 +30,73 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(
 
 LRESULT __stdcall WindowProcess(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    if (ImGui_ImplWin32_WndProcHandler(window, message, wParam, lParam))
-        return TRUE;
+	if (ImGui_ImplWin32_WndProcHandler(window, message, wParam, lParam))
+		return TRUE;
 
-    switch (message)
-    {
-        case WM_SIZE:
-        {
-            if (gui::device && wParam != SIZE_MINIMIZED)
-            {
-                gui::presentParameters.BackBufferWidth = LOWORD(lParam);
-                gui::presentParameters.BackBufferHeight = HIWORD(lParam);
-                gui::ResetDevice();
-            }
-            return 0;
-        }
+	switch (message)
+	{
+		case WM_SIZE:
+		{
+			if (gui::device && wParam != SIZE_MINIMIZED)
+			{
+				gui::presentParameters.BackBufferWidth = LOWORD(lParam);
+				gui::presentParameters.BackBufferHeight = HIWORD(lParam);
+				gui::ResetDevice();
+			}
+			return 0;
+		}
 
-        case WM_SYSCOMMAND:
-        {
-            if ((wParam & 0xfff0) == SC_KEYMENU)
-                return 0;
-        }
-        break;
+		case WM_SYSCOMMAND:
+		{
+			if ((wParam & 0xfff0) == SC_KEYMENU)
+				return 0;
+		}
+		break;
 
-        case WM_DESTROY:
-        {
-            PostQuitMessage(0);
-        }
-        return 0;
+		case WM_DESTROY:
+		{
+			PostQuitMessage(0);
+		}
+		return 0;
 
-        case WM_LBUTTONDOWN:
-        {
-            gui::position = MAKEPOINTS(lParam);
-        }
-        return 0;
+		case WM_LBUTTONDOWN:
+		{
+			gui::position = MAKEPOINTS(lParam);
+		}
+		return 0;
 
-        case WM_MOUSEMOVE:
-        {
-            if (wParam == MK_LBUTTON)
-            {
-                POINTS points = MAKEPOINTS(lParam);
-                RECT rect = {};
+		case WM_MOUSEMOVE:
+		{
+			if (wParam == MK_LBUTTON)
+			{
+				POINTS points = MAKEPOINTS(lParam);
+				RECT rect = {};
 
-                GetWindowRect(gui::window, &rect);
+				GetWindowRect(gui::window, &rect);
 
-                rect.left += points.x - gui::position.x;
-                rect.top += points.y - gui::position.y;
+				rect.left += points.x - gui::position.x;
+				rect.top += points.y - gui::position.y;
 
-                if (gui::position.x >= 0 &&
-                    gui::position.x <= gui::WIDTH &&
-                    gui::position.y >= 0 && gui::position.y <= 19)
-                {
-                    SetWindowPos(
-                        gui::window,
-                        HWND_TOPMOST,
-                        rect.left,
-                        rect.top,
-                        0,
-                        0,
-                        SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER
-                    );
-                }
-            }
-        }
-        return 0;
-    }
+				if (gui::position.x >= 0 &&
+					gui::position.x <= gui::WIDTH &&
+					gui::position.y >= 0 && gui::position.y <= 19)
+				{
+					SetWindowPos(
+						gui::window,
+						HWND_TOPMOST,
+						rect.left,
+						rect.top,
+						0,
+						0,
+						SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER
+					);
+				}
+			}
+		}
+		return 0;
+	}
 
-    return DefWindowProcW(window, message, wParam, lParam);
+	return DefWindowProcW(window, message, wParam, lParam);
 }
 
 
@@ -333,6 +333,25 @@ void gui::Theme() noexcept
 
 void gui::Menu() noexcept
 {
+
+#ifdef RUN_HILL_CLIMBER
+
+    ImPlot::BeginPlot("Hill Climber");
+    {
+        float fitnesses[NUMBER_OF_GENERATIONS];
+        for (int i = 0; i < NUMBER_OF_GENERATIONS; i++) {
+            fitnesses[i] = Helper::fitnesses[i];
+        }
+
+        ImPlot::PlotLine("Fitness", fitnesses, NUMBER_OF_GENERATIONS);
+    }
+    ImPlot::EndPlot();
+
+#endif
+
+
+#ifdef RUN_GENETIC_ALGORITHM
+
 	ImPlot::BeginPlot("Winning Generations");
 	{
 
@@ -571,6 +590,7 @@ void gui::Menu() noexcept
 			float generation_fitness_average[POPULATION_SIZE];
 			float individual_fitness_average[POPULATION_SIZE];
 
+			// ImPlot::SetNextAxesToFit();
 			switch (Helper::generation_type_index){
 				case 0:
 					ImPlot::BeginPlot("Populations");
@@ -581,6 +601,7 @@ void gui::Menu() noexcept
 							generation_fitness_average[k] = Helper::generations[Helper::generation_index].population.average;
 							individual_fitness_average[k] = (individual->getFitness() / NUMBER_OF_GENES);
 						}
+                        
 						ImPlot::PlotLine("Fitness", generation_fitness_height, POPULATION_SIZE);
 						ImPlot::PlotLine("Height Average", generation_fitness_average, POPULATION_SIZE);
 						ImPlot::PlotLine("Individual Average", individual_fitness_average, POPULATION_SIZE);
@@ -679,6 +700,33 @@ void gui::Menu() noexcept
 				menu_index = 2;
 			}
 		}
+			
+		ImGui::SameLine();
+
+		ImGui::Button("View Combined Plato preformance", ImVec2(ImGui::GetContentRegionAvail().x / 3 - 10, 20));
+		{
+			if (ImGui::IsItemClicked()) {
+				menu_index = 3;
+			}
+		}
+
+		ImGui::SameLine();
+
+		ImGui::Button("View Tabled Results", ImVec2(ImGui::GetContentRegionAvail().x / 3 - 10, 20));
+		{
+			if (ImGui::IsItemClicked()) {
+				menu_index = 4;
+			}
+		}
+
+        ImGui::SameLine();
+
+        ImGui::Button("View Solution Fitness", ImVec2(ImGui::GetContentRegionAvail().x / 3 - 10, 20));
+        {
+            if (ImGui::IsItemClicked()) {
+                menu_index = 5;
+            }
+        }
 
 
 		switch (menu_index)
@@ -713,6 +761,12 @@ void gui::Menu() noexcept
 
 			ImPlot::BeginPlot("View Args by Fitness");
 			{
+				lookup_index = ImPlot::GetPlotMousePos().x;
+				if (lookup_index < 0)
+					lookup_index = 0;
+				if (lookup_index > Helper::meta_data.size() - 1)
+					lookup_index = Helper::meta_data.size() - 1;
+
 				std::vector<float> ending_fitnesses;
 
 				for (int i = 0; i < Helper::meta_data.size(); i++){
@@ -732,6 +786,12 @@ void gui::Menu() noexcept
 
 			ImPlot::BeginPlot("Plato Preformance");
 			{
+				lookup_index = ImPlot::GetPlotMousePos().x;
+				if (lookup_index < 0)
+					lookup_index = 0;
+				if (lookup_index > Helper::meta_data.size() - 1)
+					lookup_index = Helper::meta_data.size() - 1;
+
 				std::vector<float> plato_confirmed;
 
 				for (int i = 0; i < Helper::meta_data.size(); i++) {
@@ -746,31 +806,151 @@ void gui::Menu() noexcept
 			break;
 		}
 
+		case 3: {
+			ImPlot::BeginPlot("Combined Plato Preformance");
+			{
+				lookup_index = ImPlot::GetPlotMousePos().x;
+				if (lookup_index < 0)
+					lookup_index = 0;
+
+				if (lookup_index > Helper::meta_data.size() - 1)
+					lookup_index = Helper::meta_data.size() - 1;
+
+				std::vector<float> plato_confirmed;
+				std::vector<float> ending_fitnesses;
+
+				for (int i = 0; i < Helper::meta_data.size(); i++) {
+					plato_confirmed.emplace_back(Helper::meta_data[i].plato_confirmed);
+				}
+
+				for (int i = 0; i < Helper::meta_data.size(); i++){
+					ending_fitnesses.emplace_back(Helper::meta_data[i].ending_fitness_height);
+				}
+
+				ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+				ImPlot::PlotStems("Plato Confirmed", plato_confirmed.data(), Helper::meta_data.size());
+
+				ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+				ImPlot::PlotStems("Ending Fitnesses", ending_fitnesses.data(), Helper::meta_data.size());
+			}
+			ImPlot::EndPlot();
+
+			break;
+		}
+
+		case 4: {
+			ImGui::BeginChild("Tabled Data", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), true); 
+			{
+                ImGui::BeginChild("#topfitness", ImVec2(ImGui::GetContentRegionAvail().x / 2, ImGui::GetContentRegionAvail().y), true);
+                {
+                    ImGui::Text("Top %d Fitnesses", NUMBER_OF_RESULTS);
+
+                    for (int i = 0; i < NUMBER_OF_RESULTS; i++) {
+                        ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
+                        ImGui::Text("Test %d : placed %d", Helper::Top10Gens()[i].generation, i);
+
+                        ImGui::Text("Fitness: %.10f", Helper::Top10Gens()[i].ending_fitness_height);
+                        ImGui::Text("Mutation Rate: %f", Helper::Top10Gens()[i].mutation_rate);
+                        ImGui::Text("Mutation Height: %f", Helper::Top10Gens()[i].mutation_height);
+
+                        ImGui::Text("Tournament Size: %f", Helper::Top10Gens()[i].tournament_size);
+                        ImGui::Text("Solution Fitness: %.10f", Helper::Top10Gens()[i].solution_fitness);
+
+                        #ifdef PLATO_HEIGHT
+                            ImGui::Text("Plato Confirmed: %i", Helper::Top10Gens()[i].plato_confirmed);
+                        #endif
+                        ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
+                    }
+
+                }
+                ImGui::EndChild();
+
+                ImGui::SameLine();
+
+                ImGui::BeginChild("#topsols", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), true);
+                {
+                    ImGui::Text("Top %d Solutions", NUMBER_OF_RESULTS);
+
+                    for (int i = 0; i < NUMBER_OF_RESULTS; i++){
+                        ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
+                        ImGui::Text("Test %d : placed %d", Helper::GetTopSolutions()[i].generation, i);
+
+                        ImGui::Text("Fitness: %.10f", Helper::GetTopSolutions()[i].ending_fitness_height);
+                        ImGui::Text("Mutation Rate: %f", Helper::GetTopSolutions()[i].mutation_rate);
+                        ImGui::Text("Mutation Height: %f", Helper::GetTopSolutions()[i].mutation_height);
+
+                        ImGui::Text("Tournament Size: %f", Helper::GetTopSolutions()[i].tournament_size);
+                        ImGui::Text("Solution Fitness: %.10f", Helper::GetTopSolutions()[i].solution_fitness);
+
+                        #ifdef PLATO_HEIGHT
+                            ImGui::Text("Plato Confirmed: %i", Helper::GetTopSolutions()[i].plato_confirmed);
+                        #endif
+                        ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal);
+                    }
+                }
+                ImGui::EndChild();
+
+			}
+			ImGui::EndChild();
+			
+            break;
+		}
+
+        case 5: {
+            ImPlot::BeginPlot("Solution Fitness");
+            {
+                lookup_index = ImPlot::GetPlotMousePos().x;
+                if (lookup_index < 0)
+                    lookup_index = 0;
+
+                if (lookup_index > Helper::meta_data.size() - 1)
+                    lookup_index = Helper::meta_data.size() - 1;
+
+                std::vector<float> solution_fitnesses;
+                std::vector<float> ending_fitnesses;
+
+                for (int i = 0; i < Helper::meta_data.size(); i++) {
+                    solution_fitnesses.emplace_back(Helper::meta_data[i].solution_fitness);
+                    ending_fitnesses.emplace_back(Helper::meta_data[i].ending_fitness_height);
+                }
+
+                ImPlot::PlotLine("Solution Fitness", solution_fitnesses.data(), Helper::meta_data.size());
+                ImPlot::PlotLine("Ending Fitnesses", ending_fitnesses.data(), Helper::meta_data.size());
+            }
+            ImPlot::EndPlot();
+
+            break;
+        }
+
 		default:
 			break;
 		}
 
-	ImGui::BeginChild("MetaData Lookup", ImVec2(ImGui::GetContentRegionAvail().x, 100), true); 
-	{
-		int lookup_index = 0;
 
-		ImGui::InputInt("Generation", &lookup_index);
+		ImGui::BeginChild("MetaData Lookup", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), true); 
+		{
 
-		ImGui::Text("Mutation Rate: %f", Helper::meta_data[lookup_index].mutation_rate);
-		ImGui::Text("Mutation Height: %f", Helper::meta_data[lookup_index].mutation_height);
-		ImGui::Text("Tournament Size: %f", Helper::meta_data[lookup_index].tournament_size);
-		ImGui::Text("Ending Fitness Height: %f", Helper::meta_data[lookup_index].ending_fitness_height);
 
-		#ifdef PLATO_HEIGHT
+			ImGui::Text("Generation Lookup: %i", lookup_index);
 
-			ImGui::Text("Plato Confirmed: %i", Helper::meta_data[lookup_index].plato_confirmed);
+			ImGui::Text("Mutation Rate: %f", Helper::meta_data[lookup_index].mutation_rate);
+			ImGui::Text("Mutation Height: %f", Helper::meta_data[lookup_index].mutation_height);
+			ImGui::Text("Tournament Size: %f", Helper::meta_data[lookup_index].tournament_size);
+			ImGui::Text("Ending Fitness Height: %.10f", Helper::meta_data[lookup_index].ending_fitness_height);
+            ImGui::Text("Solution Fitness: %.10f", Helper::meta_data[lookup_index].solution_fitness);
 
-		#endif
-	}
-	ImGui::EndChild();
+			#ifdef PLATO_HEIGHT
+
+				ImGui::Text("Plato Confirmed: %i", Helper::meta_data[lookup_index].plato_confirmed);
+
+			#endif
+		}
+		ImGui::EndChild();
 		
 
 	#endif
+
+#endif
 }
 
 

@@ -4,7 +4,7 @@
 
 class Individual {
     private:
-        float fitness;
+        double fitness;
         float genes[NUMBER_OF_GENES];
 
     public:
